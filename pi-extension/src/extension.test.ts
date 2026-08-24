@@ -1256,6 +1256,7 @@ describe("multi-channel broadcast (W2D)", () => {
     // an existing pairing.
     const calls = ctx.ui.notify.mock.calls.map((c) => c[0] as string);
     expect(calls.some((m) => m.includes("QR ready"))).toBe(true);
+    expect(calls.some((m) => m.includes("remotepi://pair"))).toBe(true);
     expect(calls.every((m) => !m.includes("Already paired"))).toBe(true);
   });
 

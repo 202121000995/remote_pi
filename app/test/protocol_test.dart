@@ -372,6 +372,22 @@ void main() {
           jsonDecode(encodeClient(msg).trim()) as Map<String, dynamic>;
       expect(decoded['decision'], 'allow');
       expect(decoded['tool_call_id'], 'tc_1');
+      expect(decoded.containsKey('scope'), isFalse);
+      expect(decoded.containsKey('pattern'), isFalse);
+    });
+
+    test('ApproveTool encodes optional scope and pattern', () {
+      final msg = ApproveTool(
+        id: 'x',
+        toolCallId: 'tc_1',
+        decision: ApproveDecision.allow,
+        scope: ApproveScope.always,
+        pattern: 'echo *',
+      );
+      final decoded =
+          jsonDecode(encodeClient(msg).trim()) as Map<String, dynamic>;
+      expect(decoded['scope'], 'always');
+      expect(decoded['pattern'], 'echo *');
     });
 
     test('Ping encodes correctly', () {

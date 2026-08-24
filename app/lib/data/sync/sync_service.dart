@@ -344,11 +344,22 @@ class SyncService extends Service {
     }
   }
 
-  Future<void> approveTool(String toolCallId, ApproveDecision decision) async {
+  Future<void> approveTool(
+    String toolCallId,
+    ApproveDecision decision, {
+    ApproveScope scope = ApproveScope.once,
+    String? pattern,
+  }) async {
     final ch = _conn.channel;
     if (ch == null) return;
     await ch.send(
-      ApproveTool(id: _newId(), toolCallId: toolCallId, decision: decision),
+      ApproveTool(
+        id: _newId(),
+        toolCallId: toolCallId,
+        decision: decision,
+        scope: scope,
+        pattern: pattern,
+      ),
     );
     await _upsert(MsgRole.tool, toolCallId, (seq, existing) {
       final base =

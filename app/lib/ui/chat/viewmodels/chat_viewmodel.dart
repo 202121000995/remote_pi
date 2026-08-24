@@ -325,8 +325,12 @@ class ChatViewModel extends ViewModel<ChatState> {
 
   Future<void> cancel(String targetId) => _sync.cancel(targetId);
 
-  Future<void> approveTool(String toolCallId, ApproveDecision decision) =>
-      _sync.approveTool(toolCallId, decision);
+  Future<void> approveTool(
+    String toolCallId,
+    ApproveDecision decision, {
+    ApproveScope scope = ApproveScope.once,
+    String? pattern,
+  }) => _sync.approveTool(toolCallId, decision, scope: scope, pattern: pattern);
 
   /// Plan/57 — submit (or cancel) an interactive extension_ui_request.
   ///

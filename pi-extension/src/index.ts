@@ -2220,7 +2220,10 @@ const extension: ExtensionFactory = (pi: ExtensionAPI): void => {
     const toolCallId = String(event.toolCallId ?? "");
     if (!toolCallId || !isGatedTool(toolName)) return;
 
-    const decision = await toolApprovalGate.wait(toolCallId);
+    const decision = await toolApprovalGate.wait(toolCallId, {
+      tool: toolName,
+      args: event.input,
+    });
     if (decision === "allow") return;
 
     const message = denialMessage(decision);
@@ -4532,7 +4535,11 @@ export function _routeClientMessageFrom(
     }
     case "approve_tool":
       // First decision for a tool_call_id wins; later phones are ignored.
-      toolApprovalGate.decide(msg.tool_call_id, msg.decision);
+      // Optional scope (once|session|always) defaults to once when omitted.
+      toolApprovalGate.decide(msg.tool_call_id, msg.decision, {
+        scope: msg.scope,
+        pattern: msg.pattern,
+      });
       break;
     case "ping":
       sender.send({ type: "pong", in_reply_to: msg.id });

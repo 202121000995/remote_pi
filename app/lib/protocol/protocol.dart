@@ -396,6 +396,11 @@ class Usage {
 
 enum ApproveDecision { allow, deny }
 
+/// How long an [ApproveTool] decision should stick.
+///
+/// Omitted on the wire when [once] so old extensions keep working.
+enum ApproveScope { once, session, always }
+
 class UnsupportedTypeException implements Exception {
   final String type;
   const UnsupportedTypeException(this.type);
@@ -512,10 +517,14 @@ class ApproveTool extends ClientMessage {
   final String id;
   final String toolCallId;
   final ApproveDecision decision;
+  final ApproveScope scope;
+  final String? pattern;
   ApproveTool({
     required this.id,
     required this.toolCallId,
     required this.decision,
+    this.scope = ApproveScope.once,
+    this.pattern,
   });
 
   @override
@@ -524,6 +533,8 @@ class ApproveTool extends ClientMessage {
     'id': id,
     'tool_call_id': toolCallId,
     'decision': decision.name,
+    if (scope != ApproveScope.once) 'scope': scope.name,
+    if (pattern != null) 'pattern': pattern,
   };
 }
 

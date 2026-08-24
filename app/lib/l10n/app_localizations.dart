@@ -1076,6 +1076,24 @@ abstract class AppLocalizations {
   /// **'允许'**
   String get toolAllow;
 
+  /// No description provided for @toolAllowOnce.
+  ///
+  /// In zh, this message translates to:
+  /// **'允许一次'**
+  String get toolAllowOnce;
+
+  /// No description provided for @toolAllowSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'本次允许'**
+  String get toolAllowSession;
+
+  /// No description provided for @toolAllowAlways.
+  ///
+  /// In zh, this message translates to:
+  /// **'总是允许'**
+  String get toolAllowAlways;
+
   /// No description provided for @toolDeny.
   ///
   /// In zh, this message translates to:

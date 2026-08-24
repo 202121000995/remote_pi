@@ -7,13 +7,18 @@ import 'package:flutter/material.dart';
 // Inline tool execution card that appears in the chat flow.
 //
 // Product-fork Phase 1: bash / write / edit wait for the existing
-// `approve_tool` ClientMessage. The card shows Allow / Deny while the
-// event is still `pending`; read-only tools (and anything else the Pi
-// auto-allows) stay informational and go pending → running → done/failed.
+// `approve_tool` ClientMessage. The card shows Allow once / this session /
+// Always allow plus Deny while the event is still `pending`; read-only tools
+// (and anything else the Pi auto-allows) stay informational.
 
 class ToolRequestCard extends StatelessWidget {
   final ToolEvent tool;
-  final void Function(String toolCallId, ApproveDecision decision)? onDecide;
+  final void Function(
+    String toolCallId,
+    ApproveDecision decision,
+    ApproveScope scope,
+  )?
+  onDecide;
 
   const ToolRequestCard({super.key, required this.tool, this.onDecide});
 
@@ -201,35 +206,88 @@ class ToolRequestCard extends StatelessWidget {
 
   Widget _buildActions(BuildContext context) {
     final colors = context.colors;
-    return Row(
+    final l10n = context.l10n;
+    return Column(
       children: [
-        Expanded(
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => onDecide!(
+                  tool.toolCallId,
+                  ApproveDecision.deny,
+                  ApproveScope.once,
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.text,
+                  side: BorderSide(color: colors.denyBorder),
+                  minimumSize: const Size.fromHeight(38),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                ),
+                child: Text(l10n.toolDeny),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => onDecide!(
+                  tool.toolCallId,
+                  ApproveDecision.allow,
+                  ApproveScope.once,
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: colors.accent,
+                  foregroundColor: colors.onAccent,
+                  minimumSize: const Size.fromHeight(38),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                ),
+                child: Text(l10n.toolAllowOnce),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
           child: OutlinedButton(
-            onPressed: () => onDecide!(tool.toolCallId, ApproveDecision.deny),
+            onPressed: () => onDecide!(
+              tool.toolCallId,
+              ApproveDecision.allow,
+              ApproveScope.session,
+            ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: colors.text,
-              side: BorderSide(color: colors.denyBorder),
+              foregroundColor: colors.accent,
+              side: BorderSide(color: colors.accent),
               minimumSize: const Size.fromHeight(38),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(9),
               ),
             ),
-            child: Text(context.l10n.toolDeny),
+            child: Text(l10n.toolAllowSession),
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: FilledButton(
-            onPressed: () => onDecide!(tool.toolCallId, ApproveDecision.allow),
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.accent,
-              foregroundColor: colors.onAccent,
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () => onDecide!(
+              tool.toolCallId,
+              ApproveDecision.allow,
+              ApproveScope.always,
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colors.accent,
+              side: BorderSide(color: colors.accent),
               minimumSize: const Size.fromHeight(38),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(9),
               ),
             ),
-            child: Text(context.l10n.toolAllow),
+            child: Text(l10n.toolAllowAlways),
           ),
         ),
       ],

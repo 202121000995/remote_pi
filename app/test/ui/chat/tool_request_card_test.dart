@@ -1,4 +1,5 @@
 import 'package:app/domain/session_state.dart';
+import 'package:app/protocol/protocol.dart';
 import 'package:app/ui/chat/widgets/tool_request_card.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ const _editToolWithHunk = ToolEvent(
 );
 
 void main() {
-  group('ToolRequestCard (informational)', () {
+  group('ToolRequestCard', () {
     testWidgets('shows tool name and command', (tester) async {
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: _bashTool)));
       expect(find.text('BASH'), findsOneWidget);
@@ -63,15 +64,67 @@ void main() {
       );
     });
 
-    testWidgets('pending state shows RUNNING and no Allow/Deny buttons', (
+    testWidgets('pending bash without onDecide stays informational', (
       tester,
     ) async {
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: _bashTool)));
       expect(find.text('RUNNING'), findsOneWidget);
       expect(find.text('Allow'), findsNothing);
       expect(find.text('Deny'), findsNothing);
-      expect(find.textContaining('s'), findsAny); // no '60s' countdown
       expect(find.textContaining('60s'), findsNothing);
+    });
+
+    testWidgets('pending bash with onDecide shows Allow/Deny and sends decisions', (
+      tester,
+    ) async {
+      String? decidedId;
+      ApproveDecision? decided;
+      await tester.pumpWidget(
+        _wrap(
+          ToolRequestCard(
+            tool: _bashTool,
+            onDecide: (id, decision) {
+              decidedId = id;
+              decided = decision;
+            },
+          ),
+        ),
+      );
+      expect(find.text('AWAITING'), findsOneWidget);
+      expect(find.text('Waiting for approval…'), findsOneWidget);
+      expect(find.text('Allow'), findsOneWidget);
+      expect(find.text('Deny'), findsOneWidget);
+
+      await tester.tap(find.text('Allow'));
+      await tester.pump();
+      expect(decidedId, 'tc1');
+      expect(decided, ApproveDecision.allow);
+
+      await tester.tap(find.text('Deny'));
+      await tester.pump();
+      expect(decided, ApproveDecision.deny);
+    });
+
+    testWidgets('pending read-only tool never shows Allow/Deny', (tester) async {
+      const read = ToolEvent(
+        id: 'tc-read',
+        toolCallId: 'tc-read',
+        tool: 'Read',
+        args: {'path': '/tmp/x'},
+      );
+      var called = false;
+      await tester.pumpWidget(
+        _wrap(
+          ToolRequestCard(
+            tool: read,
+            onDecide: (_, _) => called = true,
+          ),
+        ),
+      );
+      expect(find.text('RUNNING'), findsOneWidget);
+      expect(find.text('Allow'), findsNothing);
+      expect(find.text('Deny'), findsNothing);
+      expect(called, isFalse);
     });
 
     testWidgets('completed state shows DONE', (tester) async {

@@ -5,22 +5,33 @@ import 'package:flutter/material.dart';
 
 // Inline tool execution card that appears in the chat flow.
 //
-// Historically this widget rendered Allow/Deny buttons + a 60s countdown
-// assuming the Pi paused execution until the user decided. With the current
-// Claude SDK integration the pi-extension emits `tool_request` AFTER the
-// SDK has already accepted the tool (`tool_execution_start` fires post
-// auto-approval), so the buttons could only blink for a few hundred
-// milliseconds before `tool_result` arrived — confusing UX with no real
-// gating. The card is now purely informational.
-//
-// `onDecide` is kept on the API for forward compat — when the Pi adds a
-// real approval pause we can re-enable the controls. Today it is unused.
+// Product-fork Phase 1: bash / write / edit wait for the existing
+// `approve_tool` ClientMessage. The card shows Allow / Deny while the
+// event is still `pending`; read-only tools (and anything else the Pi
+// auto-allows) stay informational and go pending → running → done/failed.
 
 class ToolRequestCard extends StatelessWidget {
   final ToolEvent tool;
   final void Function(String toolCallId, ApproveDecision decision)? onDecide;
 
   const ToolRequestCard({super.key, required this.tool, this.onDecide});
+
+  /// Matches pi-extension `GATED_TOOLS` (bash / write / edit).
+  static bool isGatedTool(String tool) {
+    switch (tool.toLowerCase()) {
+      case 'bash':
+      case 'write':
+      case 'edit':
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get _canDecide =>
+      onDecide != null &&
+      tool.status == ToolEventStatus.pending &&
+      isGatedTool(tool.tool);
 
   /// Plan/32 — one color drives the whole card so the outcome is unmistakable:
   /// running → blue, done → green, failed → red, denied/expired → grey.
@@ -68,6 +79,10 @@ class ToolRequestCard extends StatelessWidget {
             _buildCodeBlock(context),
             const SizedBox(height: 8),
             _buildOutcome(color),
+            if (_canDecide) ...[
+              const SizedBox(height: 12),
+              _buildActions(context),
+            ],
           ],
         ),
       ),
@@ -76,7 +91,8 @@ class ToolRequestCard extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, Color color) {
     final statusLabel = switch (tool.status) {
-      ToolEventStatus.pending || ToolEventStatus.allowed => 'RUNNING',
+      ToolEventStatus.pending => _canDecide ? 'AWAITING' : 'RUNNING',
+      ToolEventStatus.allowed => 'RUNNING',
       ToolEventStatus.completed => 'DONE',
       ToolEventStatus.failed => 'FAILED',
       ToolEventStatus.denied => 'DENIED',
@@ -161,7 +177,9 @@ class ToolRequestCard extends StatelessWidget {
 
   Widget _buildOutcome(Color color) {
     final text = switch (tool.status) {
-      ToolEventStatus.pending || ToolEventStatus.allowed => '⏳ Running…',
+      ToolEventStatus.pending =>
+        _canDecide ? 'Waiting for approval…' : '⏳ Running…',
+      ToolEventStatus.allowed => '⏳ Running…',
       ToolEventStatus.completed => '✓ Done',
       ToolEventStatus.failed => '✗ ${tool.error ?? "Failed"}',
       ToolEventStatus.denied => '✗ ${tool.error ?? "Denied"}',
@@ -170,6 +188,43 @@ class ToolRequestCard extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(fontFamily: kMonoFamily, fontSize: 12, color: color),
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    final colors = context.colors;
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => onDecide!(tool.toolCallId, ApproveDecision.deny),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colors.text,
+              side: BorderSide(color: colors.denyBorder),
+              minimumSize: const Size.fromHeight(38),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9),
+              ),
+            ),
+            child: const Text('Deny'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: FilledButton(
+            onPressed: () => onDecide!(tool.toolCallId, ApproveDecision.allow),
+            style: FilledButton.styleFrom(
+              backgroundColor: colors.accent,
+              foregroundColor: colors.onAccent,
+              minimumSize: const Size.fromHeight(38),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9),
+              ),
+            ),
+            child: const Text('Allow'),
+          ),
+        ),
+      ],
     );
   }
 

@@ -76,6 +76,12 @@ import {
 } from "./extension_ui_bridge.js";
 import { roomIdFor } from "./rooms.js";
 import { registerAgentTools } from "./session/tools.js";
+import {
+  denialMessage,
+  isGatedTool,
+  toolApprovalGate,
+} from "./session/tool_approval.js";
+export { _resetToolApprovalGateForTest } from "./session/tool_approval.js";
 import { formatPeerInventory } from "./session/peer_inventory.js";
 import { MeshNode } from "./session/mesh_node.js";
 import {
@@ -1399,6 +1405,10 @@ function _goIdle(byeReason?: import("./protocol/types.js").ByeReason): void {
     _broadcastToActive({ type: "bye", reason: byeReason });
   }
 
+  // Drop in-flight approval waiters so a stopped / replaced session cannot
+  // later execute bash/write/edit from a stale approve_tool.
+  toolApprovalGate.rejectAll("deny");
+
   // Cancel any pending reconnect attempt. Critical: /remote-pi stop must
   // win the race against a scheduled reconnect.
   if (_reconnectTimer !== null) {
@@ -2188,10 +2198,9 @@ const extension: ExtensionFactory = (pi: ExtensionAPI): void => {
     }
   });
 
-  // Notify every connected owner that a tool is about to run (visibility
-  // only, NOT approval). tool_execution_start fires before the tool
-  // executes; tool_execution_end closes the loop with the result. Together
-  // they render a "Tool running… done" timeline in each paired app.
+  // Notify every connected owner that a tool is about to run. This is the
+  // timeline event — it does not decide execution. The gate lives on
+  // `tool_call` (below), which the SDK fires after start and before execute.
   pi.on("tool_execution_start", (event) => {
     if (!_anyPeerActive()) return;
     _broadcastToActive({
@@ -2200,6 +2209,35 @@ const extension: ExtensionFactory = (pi: ExtensionAPI): void => {
       tool: event.toolName,
       args: _enrichToolArgs(event.toolName, event.args),
     });
+  });
+
+  // Product-fork Phase 1: re-enable the existing approve_tool gate.
+  // Same handler for interactive TUI, daemon, and `pi --mode rpc` — the
+  // factory runs in all three. Returning `{ block: true }` is the SDK's
+  // official way to skip execution; we do not invent new wire types.
+  pi.on("tool_call", async (event) => {
+    const toolName = String(event.toolName ?? "");
+    const toolCallId = String(event.toolCallId ?? "");
+    if (!toolCallId || !isGatedTool(toolName)) return;
+
+    const decision = await toolApprovalGate.wait(toolCallId);
+    if (decision === "allow") return;
+
+    const message = denialMessage(decision);
+    if (_anyPeerActive()) {
+      _broadcastToActive({
+        type: "tool_result",
+        tool_call_id: toolCallId,
+        error: message,
+      });
+      if (decision === "timeout") {
+        const err: ServerMessage = _currentTurnId
+          ? { type: "error", in_reply_to: _currentTurnId, code: "timeout", message }
+          : { type: "error", code: "timeout", message };
+        _broadcastToActive(err);
+      }
+    }
+    return { block: true, reason: message };
   });
 
   pi.on("tool_execution_end", (event) => {
@@ -4490,9 +4528,8 @@ export function _routeClientMessageFrom(
       break;
     }
     case "approve_tool":
-      // Approval gate was removed (plano 10.2 revisado). Type kept in
-      // ClientMessage for forward-compat with a future permissions model;
-      // ignore silently if the app still sends it from an older build.
+      // First decision for a tool_call_id wins; later phones are ignored.
+      toolApprovalGate.decide(msg.tool_call_id, msg.decision);
       break;
     case "ping":
       sender.send({ type: "pong", in_reply_to: msg.id });

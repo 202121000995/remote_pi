@@ -110,10 +110,17 @@ export function renderQRAscii(uri: string): string {
  * instead — direct stderr writes from inside an extension break the TUI's
  * scrollable output widget (the QR overflows the panel and other writes
  * collide with the prompt area).
+ *
+ * The pairing URI is always written to stdout so SSH / non-TTY sessions can
+ * copy-paste it into the app's paste-code sheet. The ASCII QR is TTY-only
+ * (useless over a pipe, and garbled without a real terminal).
  */
 export function displayQR(uri: string): void {
-  const qrcode = renderQRAscii(uri);
-  process.stderr.write(`\n📱 Scan to pair:\n\n${qrcode}\n`);
+  if (process.stderr.isTTY) {
+    const qrcode = renderQRAscii(uri);
+    process.stderr.write(`\n📱 Scan to pair:\n\n${qrcode}\n`);
+  }
+  process.stdout.write(`Pairing URI (paste into the app):\n${uri}\n`);
 }
 
 /**

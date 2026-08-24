@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   QRSession,
   clampPairTtlMs,
+  displayQR,
   TOKEN_TTL_MS,
   PAIR_TTL_MIN_MS,
   PAIR_TTL_MAX_MS,
@@ -61,5 +62,57 @@ describe("QRSession.issueToken — ttl", () => {
     const first = s.issueToken(60_000).token;
     s.issueToken(60_000);
     expect(s.consumeToken(first)).toBe("unknown");
+  });
+});
+
+describe("displayQR — pairing URI for non-TTY", () => {
+  const uri = "remotepi://pair?t=abc&epk=xyz&n=box";
+  const stdoutWrites: string[] = [];
+  const stderrWrites: string[] = [];
+  let stdoutSpy: ReturnType<typeof vi.spyOn>;
+  let stderrSpy: ReturnType<typeof vi.spyOn>;
+  let stderrTty: boolean | undefined;
+
+  beforeEach(() => {
+    stdoutWrites.length = 0;
+    stderrWrites.length = 0;
+    stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
+      stdoutWrites.push(String(chunk));
+      return true;
+    });
+    stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation((chunk) => {
+      stderrWrites.push(String(chunk));
+      return true;
+    });
+    stderrTty = process.stderr.isTTY;
+  });
+
+  afterEach(() => {
+    stdoutSpy.mockRestore();
+    stderrSpy.mockRestore();
+    Object.defineProperty(process.stderr, "isTTY", {
+      value: stderrTty,
+      configurable: true,
+    });
+  });
+
+  test("always prints the pairing URI on stdout", () => {
+    Object.defineProperty(process.stderr, "isTTY", { value: false, configurable: true });
+    displayQR(uri);
+    expect(stdoutWrites.join("")).toContain(uri);
+    expect(stdoutWrites.join("")).toMatch(/Pairing URI/);
+  });
+
+  test("skips the ASCII QR when stderr is not a TTY", () => {
+    Object.defineProperty(process.stderr, "isTTY", { value: false, configurable: true });
+    displayQR(uri);
+    expect(stderrWrites.join("")).toBe("");
+  });
+
+  test("prints the ASCII QR on stderr when it is a TTY", () => {
+    Object.defineProperty(process.stderr, "isTTY", { value: true, configurable: true });
+    displayQR(uri);
+    expect(stderrWrites.join("")).toMatch(/Scan to pair/);
+    expect(stdoutWrites.join("")).toContain(uri);
   });
 });

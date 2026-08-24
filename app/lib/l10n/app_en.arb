@@ -38,7 +38,7 @@
   "pairingPointCamera": "Point camera at the QR shown in your Mac terminal",
   "pairingConnectingTo": "Connecting to {name}…",
   "pairingPasteTitle": "Paste pairing code",
-  "pairingPasteBody": "Can't scan the QR? Paste the text from your Mac terminal below. It starts with remotepi://pair?…",
+  "pairingPasteBody": "Can't scan the QR? Paste the text from your terminal below. It starts with remotepi://pair?…",
   "pairingPasteFromClipboard": "Paste from clipboard",
   "pairingNameThisPc": "Name this PC",
   "pairingNameThisPcHint": "Pick a label so this Mac is easy to spot in your list. You can change it later from the home screen.",

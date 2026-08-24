@@ -123,7 +123,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairingPasteBody =>
-      'Can\'t scan the QR? Paste the text from your Mac terminal below. It starts with remotepi://pair?…';
+      'Can\'t scan the QR? Paste the text from your terminal below. It starts with remotepi://pair?…';
 
   @override
   String get pairingPasteFromClipboard => 'Paste from clipboard';

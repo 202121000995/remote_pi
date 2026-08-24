@@ -39,7 +39,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { SettingsManager, convertToPng } from "@earendil-works/pi-coding-agent";
 import { type Ed25519Keypair } from "./pairing/crypto.js";
-import { buildQRUri, qrSession, renderQRAscii, clampPairTtlMs, TOKEN_TTL_MS } from "./pairing/qr.js";
+import { buildQRUri, displayQR, qrSession, renderQRAscii, clampPairTtlMs, TOKEN_TTL_MS } from "./pairing/qr.js";
 import {
   addPeer,
   getOrCreateEd25519Keypair,
@@ -2587,7 +2587,7 @@ const extension: ExtensionFactory = (pi: ExtensionAPI): void => {
   pi.registerCommand("remote-pi setup",    { description: "Run the setup wizard and update local config", handler: async (_, ctx) => { _lastCtx = ctx; await _cmdSetup(ctx); } });
   pi.registerCommand("remote-pi status",   { description: "Show local mesh + relay status", handler: async (_, ctx) => { _lastCtx = ctx; _cmdStatus(ctx); } });
   pi.registerCommand("remote-pi stop",     { description: "Stop everything (leave local mesh + disconnect relay)", handler: async (_, ctx) => { _lastCtx = ctx; await _cmdStop(ctx); } });
-  pi.registerCommand("remote-pi pair",     { description: "Show a QR code to pair a new mobile device (optional: --ttl <seconds>)", handler: async (args, ctx) => { _lastCtx = ctx; await _cmdPair(ctx, args.trim()); } });
+  pi.registerCommand("remote-pi pair",     { description: "Show a QR / pairing URI to pair a new mobile device (optional: --ttl <seconds>)", handler: async (args, ctx) => { _lastCtx = ctx; await _cmdPair(ctx, args.trim()); } });
   pi.registerCommand("remote-pi devices",  { description: "List paired mobile devices", handler: async (_, ctx) => { _lastCtx = ctx; await _cmdList(ctx); } });
   pi.registerCommand("remote-pi rename",  { description: "Rename this agent in the current session (updates mesh + relay room)", handler: async (args, ctx) => { _lastCtx = ctx; await _renameAgent(args.trim()); } });
   pi.registerCommand("remote-pi revoke", {
@@ -3212,17 +3212,20 @@ async function _cmdPair(ctx: Pick<ExtensionContext, "ui" | "cwd">, args = ""): P
       customType: "remote-pi:pair-code",
       content:
         `📱 Scan to pair:\n\n${qrAscii}\n` +
-        `📋 Or copy this pairing code (camera-less devices):\n\n${qrUri}`,
+        `📋 Pairing URI (paste into the app if you cannot scan):\n\n${qrUri}`,
       // Structured payload for RPC clients (e.g. Cockpit): render their own QR
       // from `uri` + show the expiry, without scraping the display string.
       details: { uri: qrUri, token, expiresAt, roomId, name: sessionName },
       display: true,
     });
+  } else {
+    // Standalone / non-TUI: always emit the URI (QR only when stderr is a TTY).
+    displayQR(qrUri);
   }
 
   ctx.ui.notify(
     `[remote-pi] QR ready — valid until ${new Date(expiresAt).toLocaleTimeString()}. ` +
-    `Scan with the app, or copy the pairing code printed above.`,
+    `Pairing URI:\n${qrUri}`,
     "info",
   );
   // Returns immediately; the auto-listener transitions to 'paired' on pair_request.
@@ -5278,6 +5281,19 @@ if (_isDirectRun()) {
     _cmdUninstall(stubCtx, { linkCli: true });
   } else if (subcmd === "restart-supervisor") {
     _restartSupervisor();
+  } else if (subcmd === "pair") {
+    // Tokens live in the process that is connected to the relay. A one-shot
+    // CLI cannot issue a usable URI — print the SSH copy-paste path instead.
+    const ext = fileURLToPath(import.meta.url);
+    console.log([
+      "[remote-pi] Pairing tokens are issued by a live Pi session.",
+      "",
+      `  pi -e ${ext}`,
+      "  /remote-pi pair",
+      "",
+      "The pairing URI (remotepi://pair?…) is always printed — no TTY QR required.",
+      "Paste it in the app: pairing screen → Can't scan? Paste code instead.",
+    ].join("\n"));
   } else {
     console.log([
       "Usage: remote-pi <command>",
@@ -5304,6 +5320,7 @@ if (_isDirectRun()) {
       "Devices:",
       "  devices                         List paired phones (peers.json)",
       "  revoke <shortid>                Revoke a paired device",
+      "  pair                            Print how to get a copy-paste pairing URI",
       "",
       "Config:",
       "  set-relay <url>                 Set the relay URL (http:// or https://)",

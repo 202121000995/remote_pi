@@ -1,4 +1,5 @@
 import 'package:app/data/transport/relay_config.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/onboarding/states/onboarding_state.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class RelayStep extends StatelessWidget {
         children: [
           const SizedBox(height: 24),
           Text(
-            'Choose a relay',
+            context.l10n.onboardingChooseRelay,
             style: TextStyle(
               fontFamily: kMonoFamily,
               fontSize: 16,
@@ -55,14 +56,17 @@ class RelayStep extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Where the app and your PC meet.',
+            context.l10n.onboardingRelaySubtitle,
             style: TextStyle(
-                fontFamily: kMonoFamily, fontSize: 11, color: colors.muted),
+              fontFamily: kMonoFamily,
+              fontSize: 11,
+              color: colors.muted,
+            ),
           ),
           const SizedBox(height: 24),
           _CustomRelayCard(
-            badge: 'recommended',
-            description: 'Self-hosted. Best privacy.',
+            badge: context.l10n.onboardingRecommended,
+            description: context.l10n.onboardingCustomRelayDesc,
             selected: state.relayChoice == RelayChoice.custom,
             customUrl: state.customRelayUrl,
             error: state.customRelayError,
@@ -71,8 +75,8 @@ class RelayStep extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _RelayCard(
-            title: 'Community relay',
-            description: 'Hosted by us. Quick to start.',
+            title: context.l10n.onboardingCommunityRelay,
+            description: context.l10n.onboardingCommunityRelayDesc,
             footer: kDefaultRelayUrl,
             selected: state.relayChoice == RelayChoice.community,
             onTap: () => onChoice(RelayChoice.community),
@@ -85,14 +89,16 @@ class RelayStep extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colors.muted,
                   side: BorderSide(color: colors.border),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(6)),
                   ),
                 ),
                 child: Text(
-                  'Back',
+                  context.l10n.commonBack,
                   style: TextStyle(fontFamily: kMonoFamily, fontSize: 13),
                 ),
               ),
@@ -109,9 +115,9 @@ class RelayStep extends StatelessWidget {
                       borderRadius: BorderRadius.all(Radius.circular(6)),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
+                  child: Text(
+                    context.l10n.commonContinue,
+                    style: const TextStyle(
                       fontFamily: kMonoFamily,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -263,7 +269,7 @@ class _CustomRelayCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Use my own server',
+                    context.l10n.onboardingCustomRelay,
                     style: TextStyle(
                       fontFamily: kMonoFamily,
                       fontSize: 13,
@@ -275,11 +281,12 @@ class _CustomRelayCard extends StatelessWidget {
                 if (badge != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 2),
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: colors.accent.withValues(alpha: 0.15),
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(4)),
+                      borderRadius: const BorderRadius.all(Radius.circular(4)),
                     ),
                     child: Text(
                       badge!,
@@ -326,16 +333,20 @@ class _CustomRelayCard extends StatelessWidget {
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: 'https://my-relay.com',
-                    hintStyle:
-                        TextStyle(fontFamily: kMonoFamily, color: colors.muted),
+                    hintStyle: TextStyle(
+                      fontFamily: kMonoFamily,
+                      color: colors.muted,
+                    ),
                     errorText: error,
                     errorStyle: TextStyle(
                       fontFamily: kMonoFamily,
                       fontSize: 10,
                       color: colors.error,
                     ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: colors.border),
                     ),
@@ -352,4 +363,3 @@ class _CustomRelayCard extends StatelessWidget {
     );
   }
 }
-

@@ -6,6 +6,7 @@
 // `IActionsRepository` so we don't spin up the DI graph or a live channel.
 
 import 'package:app/data/actions/actions_repository.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/protocol/protocol.dart';
 import 'package:app/ui/chat/quick_actions/states/quick_actions_state.dart';
 import 'package:app/ui/chat/quick_actions/viewmodels/quick_actions_viewmodel.dart';
@@ -82,40 +83,43 @@ Future<({_FakeRepo repo, List<int> resetCalls})> _openSheet(
   final vm = QuickActionsViewModel(repo);
   final resetCalls = <int>[];
 
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(
-      body: Builder(
-        builder: (ctx) => ElevatedButton(
-          onPressed: () {
-            final messenger = ScaffoldMessenger.of(ctx);
-            showModalBottomSheet<void>(
-              context: ctx,
-              // Mirror the production entry point so the full body has room
-              // (otherwise the Column overflows the half-height default).
-              isScrollControlled: true,
-              builder: (_) =>
-                  ChangeNotifierProvider<QuickActionsViewModel>.value(
-                value: vm,
-                child: QuickActionsSheetBody(
-                  messenger: messenger,
-                  onSessionReset: () async => resetCalls.add(1),
-                ),
-              ),
-            );
-          },
-          child: const Text('open'),
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (ctx) => ElevatedButton(
+            onPressed: () {
+              final messenger = ScaffoldMessenger.of(ctx);
+              showModalBottomSheet<void>(
+                context: ctx,
+                // Mirror the production entry point so the full body has room
+                // (otherwise the Column overflows the half-height default).
+                isScrollControlled: true,
+                builder: (_) =>
+                    ChangeNotifierProvider<QuickActionsViewModel>.value(
+                      value: vm,
+                      child: QuickActionsSheetBody(
+                        messenger: messenger,
+                        onSessionReset: () async => resetCalls.add(1),
+                      ),
+                    ),
+              );
+            },
+            child: const Text('open'),
+          ),
         ),
       ),
     ),
-  ));
+  );
   await tester.tap(find.text('open'));
   await tester.pumpAndSettle();
   return (repo: repo, resetCalls: resetCalls);
 }
 
 void main() {
-  testWidgets('Compact: tap sends and closes the sheet — no success toast',
-      (tester) async {
+  testWidgets('Compact: tap sends and closes the sheet — no success toast', (
+    tester,
+  ) async {
     final s = await _openSheet(tester);
     await tester.tap(find.byKey(const Key('qa-compact')));
     await tester.pumpAndSettle();
@@ -124,11 +128,12 @@ void main() {
     // Sheet dismissed on success.
     expect(find.byKey(const Key('qa-compact')), findsNothing);
     // No success toast — compacting is a quiet action (toast removed).
-    expect(find.text('Context compacted'), findsNothing);
+    expect(find.text(appL10n.chatContextCompacted), findsNothing);
   });
 
-  testWidgets('Compact: failure keeps the sheet open and toasts the error',
-      (tester) async {
+  testWidgets('Compact: failure keeps the sheet open and toasts the error', (
+    tester,
+  ) async {
     final s = await _openSheet(tester, failCompact: true);
     await tester.tap(find.byKey(const Key('qa-compact')));
     await tester.pumpAndSettle();
@@ -137,17 +142,18 @@ void main() {
     // Sheet stays open so the user can retry.
     expect(find.byKey(const Key('qa-compact')), findsOneWidget);
     expect(find.text('compact boom'), findsOneWidget);
-    expect(find.text('Context compacted'), findsNothing);
+    expect(find.text(appL10n.chatContextCompacted), findsNothing);
   });
 
-  testWidgets('New session: confirm fires, resets chat, closes (no toast)',
-      (tester) async {
+  testWidgets('New session: confirm fires, resets chat, closes (no toast)', (
+    tester,
+  ) async {
     final s = await _openSheet(tester);
     await tester.tap(find.byKey(const Key('qa-new-session')));
     await tester.pumpAndSettle();
     // Confirmation dialog up.
-    expect(find.text('Start a new session?'), findsOneWidget);
-    await tester.tap(find.text('Start new'));
+    expect(find.text(appL10n.chatNewSessionConfirmTitle), findsOneWidget);
+    await tester.tap(find.text(appL10n.chatStartNew));
     await tester.pumpAndSettle();
 
     expect(s.repo.newSessionCalls, 1);
@@ -167,15 +173,15 @@ void main() {
       await tester.pumpAndSettle();
       // The sheet closes the moment the confirm dialog opens.
       expect(find.byKey(const Key('qa-new-session')), findsNothing);
-      expect(find.text('Start a new session?'), findsOneWidget);
+      expect(find.text(appL10n.chatNewSessionConfirmTitle), findsOneWidget);
 
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text(appL10n.commonCancel));
       await tester.pumpAndSettle();
 
       expect(s.repo.newSessionCalls, 0);
       expect(s.resetCalls, isEmpty);
       // Both the dialog and the (already-closed) sheet are gone.
-      expect(find.text('Start a new session?'), findsNothing);
+      expect(find.text(appL10n.chatNewSessionConfirmTitle), findsNothing);
       expect(find.byKey(const Key('qa-new-session')), findsNothing);
     },
   );
@@ -230,23 +236,24 @@ void main() {
       await tester.pumpAndSettle();
       // Sheet already closed when the dialog opened.
       expect(find.byKey(const Key('qa-new-session')), findsNothing);
-      expect(find.text('Start a new session?'), findsOneWidget);
+      expect(find.text(appL10n.chatNewSessionConfirmTitle), findsOneWidget);
 
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text(appL10n.commonCancel));
       await tester.pumpAndSettle();
 
       // The dialog must be gone (it wasn't, with the old sheet-context pop).
-      expect(find.text('Start a new session?'), findsNothing);
+      expect(find.text(appL10n.chatNewSessionConfirmTitle), findsNothing);
       expect(repo.newSessionCalls, 0);
     },
   );
 
-  testWidgets('New session: failure toasts the error and does not reset chat',
-      (tester) async {
+  testWidgets('New session: failure toasts the error and does not reset chat', (
+    tester,
+  ) async {
     final s = await _openSheet(tester, failNewSession: true);
     await tester.tap(find.byKey(const Key('qa-new-session')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Start new'));
+    await tester.tap(find.text(appL10n.chatStartNew));
     await tester.pumpAndSettle();
 
     expect(s.repo.newSessionCalls, 1);

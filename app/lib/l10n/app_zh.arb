@@ -1,0 +1,305 @@
+{
+  "@@locale": "zh",
+  "appTitle": "Remote Pi",
+  "commonCancel": "取消",
+  "commonSave": "保存",
+  "commonClose": "关闭",
+  "commonBack": "返回",
+  "commonRetry": "重试",
+  "commonTryAgain": "重试",
+  "commonSettings": "设置",
+  "commonContinue": "继续",
+  "commonSkip": "跳过",
+  "commonDelete": "删除",
+  "commonSubmit": "提交",
+  "commonPair": "配对",
+  "commonDismiss": "关闭",
+  "commonRefresh": "刷新",
+
+  "onboardingTagline": "随时随地控制你的 Pi 智能体",
+  "onboardingBody": "把这个 App 和电脑上运行的 Pi 配对（Mac、Linux 或 Windows），出门也能继续对话。",
+  "onboardingGetStarted": "开始使用",
+  "onboardingChooseRelay": "选择中继",
+  "onboardingRelaySubtitle": "App 和电脑在这里会合。",
+  "onboardingRecommended": "推荐",
+  "onboardingCustomRelay": "使用自己的服务器",
+  "onboardingCustomRelayDesc": "自托管，隐私最好。",
+  "onboardingCommunityRelay": "社区中继",
+  "onboardingCommunityRelayDesc": "我们托管，马上就能用。",
+  "onboardingConnectDevice": "连接设备",
+  "onboardingPairInstructions": "在电脑上（Mac、Linux 或 Windows）打开 Pi，然后运行：",
+  "onboardingScanQrHint": "扫描出现的二维码：",
+  "onboardingCantScan": "扫不了？改为粘贴配对码",
+  "onboardingScanLater": "稍后再扫",
+  "onboardingPairing": "正在配对…",
+  "onboardingPaired": "已配对！",
+
+  "pairingTitle": "配对设备",
+  "pairingPointCamera": "将相机对准终端里显示的二维码",
+  "pairingConnectingTo": "正在连接 {name}…",
+  "@pairingConnectingTo": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pairingPasteTitle": "粘贴配对码",
+  "pairingPasteBody": "扫不了二维码？把电脑终端里的文本粘到下面。以 remotepi://pair? 开头。",
+  "pairingPasteFromClipboard": "从剪贴板粘贴",
+  "pairingNameThisPc": "给这台电脑起名",
+  "pairingNameThisPcHint": "起个好认的名字，方便在列表里找到。之后可以在主页改。",
+  "pairingQrExpired": "二维码已过期 — 请在电脑上重新生成",
+  "pairingQrUsed": "二维码已用过 — 请重新生成",
+  "pairingQrUnknown": "电脑无法识别这个二维码 — 请重新运行 /remote-pi pair",
+  "pairingTimeout": "超时了 — 请确认电脑上正在运行 /remote-pi",
+  "pairingRelayMismatch": "二维码指向“{qrUrl}”，但 App 当前使用“{currentUrl}”。请在设置里改中继，或让 Pi 重新生成二维码。",
+  "@pairingRelayMismatch": {
+    "placeholders": {
+      "qrUrl": { "type": "String" },
+      "currentUrl": { "type": "String" }
+    }
+  },
+  "pairingUnknownResponse": "未知响应类型：{type}",
+  "@pairingUnknownResponse": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "pairingAndroidDevice": "安卓设备",
+  "pairingMobileDevice": "手机",
+
+  "relayUrlInvalidScheme": "请用 http:// 或 https://（不要用 ws:// 或 wss:// — App 会自动转成 WebSocket）。",
+  "relayUrlInvalidGeneric": "请输入以 https:// 开头的有效网址（本地中继可以用 http://）。",
+
+  "homeConnected": "已连接",
+  "homeAwaitingPairing": "等待配对",
+  "homeOffline": "离线",
+  "homeRelay": "中继",
+  "homeFilterAll": "全部",
+  "homeFilterOnline": "在线",
+  "homeFilterOffline": "离线",
+  "homeNothingHere": "这里还是空的…",
+  "homeNothingHereSubtitle": "配对的 Pi 打开会话后，会出现在这里。",
+  "homeNoPairings": "还没有配对",
+  "homeNoPairingsHint": "扫描电脑上的二维码即可开始。",
+  "homeScanQr": "扫描二维码",
+  "homeNoSessionsOnline": "没有在线会话",
+  "homeNoSessionsOnlineHint": "配对的 Pi 活跃时，实时会话会出现在这里。",
+  "homeNoSessionsOffline": "没有离线会话",
+  "homeNoSessionsOfflineHint": "以前见过、现在不在线的会话会出现在这里。",
+  "homeRenameSession": "重命名会话",
+  "homeDeleteSessionLocal": "删除会话（仅本地）",
+  "homeDeleteSessionOnlyOffline": "仅在会话离线时可用",
+  "homeDeleteSessionTitle": "删除会话？",
+  "homeDeleteSessionBody": "只从本机移除。如果 Pi 上这个会话重新上线，它会再出现在列表里。",
+  "homeLastPaired": "上次配对：{time}",
+  "@homeLastPaired": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "homeJustNow": "刚刚",
+  "homeMinutesAgo": "{n} 分钟前",
+  "@homeMinutesAgo": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "homeHoursAgo": "{n} 小时前",
+  "@homeHoursAgo": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "homeDaysAgo": "{n} 天前",
+  "@homeDaysAgo": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "homeSession": "会话",
+
+  "chatWorking": "工作中…",
+  "chatReconnecting": "重连中…",
+  "chatOnline": "在线",
+  "chatOffline": "离线",
+  "chatSessionInfo": "会话信息",
+  "chatInfoName": "名称",
+  "chatInfoPath": "路径",
+  "chatInfoOwner": "设备",
+  "chatInfoModel": "模型",
+  "chatInfoRoom": "房间",
+  "chatInfoPaired": "配对时间",
+  "chatNoActiveDevice": "没有活跃设备",
+  "chatConnecting": "正在连接…",
+  "chatRePair": "重新配对",
+  "chatNothingHere": "这里还是空的",
+  "chatPairingRevoked": "电脑已撤销配对 — 重新配对后才能继续",
+  "chatCameraPermission": "相机权限已关闭 — 请到设置里打开，才能附加照片。",
+  "chatAttachFailed": "这张图片没法附加。",
+  "chatHoldMic": "按住麦克风说话",
+  "chatMicPermission": "麦克风权限已关闭 — 请到设置里打开，才能语音输入。",
+  "chatHintOffline": "离线…",
+  "chatHintSteer": "给当前回复加点指示…",
+  "chatHintCaption": "加个说明…",
+  "chatHintSend": "发一条消息…",
+  "chatQueuedEdit": "已排队。点一下可改。",
+  "chatQueuedFollowup": "已排队的后续消息。",
+  "chatClearQueued": "清除排队消息",
+  "chatAttachImage": "附加图片",
+  "chatQuickActions": "快捷操作",
+  "chatTranscribing": "识别中…",
+  "chatSteering": "引导中…",
+  "chatSending": "发送中…",
+  "chatNotDelivered": "未送达",
+  "chatContextCompacted": "上下文已压缩",
+  "chatTokensApprox": "约 {count} tokens",
+  "@chatTokensApprox": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chatSelectSession": "选择一个会话",
+  "chatSelectSessionHint": "在左侧点一个会话，打开对应聊天。",
+  "chatCopyCode": "复制代码",
+  "chatCouldntOpenUrl": "打不开 {url}",
+  "@chatCouldntOpenUrl": {
+    "placeholders": {
+      "url": { "type": "String" }
+    }
+  },
+  "chatSlideToCancel": "左滑取消",
+  "chatReleaseToCancel": "松手取消",
+  "chatCamera": "相机",
+  "chatPhotoLibrary": "相册",
+  "chatClarificationNeeded": "需要你确认一下",
+  "chatTypeYourOwn": "自己输入…",
+  "chatPleaseConfirm": "请确认。",
+  "chatNoResponseFromPi": "Pi 还没回应 — 重试或取消。",
+  "chatRequired": "必填",
+  "chatMulti": "多选",
+  "chatCode": "代码",
+  "chatFailedToLoadModels": "加载模型失败",
+  "chatChooseModel": "选择模型",
+  "chatNoModels": "没有可用模型",
+  "chatCompactContext": "压缩上下文",
+  "chatCompactSubtitle": "总结旧对话，腾出空间。",
+  "chatNewSession": "新会话",
+  "chatNewSessionSubtitle": "清空 Pi 上的对话。",
+  "chatNewSessionConfirmTitle": "开始新会话？",
+  "chatNewSessionConfirmBody": "这会清空 Pi 端的对话记录。当前线程无法恢复。",
+  "chatStartNew": "开始新会话",
+  "chatSwitchingModel": "切换中…",
+  "chatModel": "模型",
+  "chatThinking": "思考",
+  "chatThinkingOff": "关",
+  "chatThinkingMin": "最低",
+  "chatThinkingLow": "低",
+  "chatThinkingMed": "中",
+  "chatThinkingHigh": "高",
+  "chatThinkingXhigh": "极高",
+  "chatReasoning": "推理",
+  "chatProviderAll": "全部",
+  "chatAnswerNotAccepted": "这个回答没被接受。",
+  "chatNotConnected": "还没连上 — 检查和 Pi 的连接后再试。",
+
+  "toolAwaiting": "等待中",
+  "toolRunning": "运行中",
+  "toolDone": "完成",
+  "toolFailed": "失败",
+  "toolDenied": "已拒绝",
+  "toolExpired": "已超时",
+  "toolWaitingApproval": "等待批准…",
+  "toolRunningEllipsis": "⏳ 运行中…",
+  "toolOutcomeDone": "✓ 完成",
+  "toolOutcomeFailed": "✗ {error}",
+  "@toolOutcomeFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "toolOutcomeDenied": "✗ {error}",
+  "@toolOutcomeDenied": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "toolOutcomeExpired": "✗ 已超时",
+  "toolAllow": "允许",
+  "toolDeny": "拒绝",
+
+  "settingsTitle": "设置",
+  "settingsPairings": "配对",
+  "settingsAddPairing": "添加配对",
+  "settingsRelayUpdated": "中继已更新",
+  "settingsRelayUrlRequired": "请输入中继网址。",
+  "actionOffline": "当前离线",
+  "actionDisconnected": "连接已断开",
+  "actionTimeout": "操作超时",
+  "actionFailed": "操作失败",
+  "settingsCurrentRelay": "当前：{url}",
+  "@settingsCurrentRelay": {
+    "placeholders": {
+      "url": { "type": "String" }
+    }
+  },
+  "settingsUseDefaultRelay": "使用默认中继",
+  "settingsDisplay": "显示",
+  "settingsTheme": "主题",
+  "settingsThemeSystem": "跟随系统",
+  "settingsThemeLight": "浅色",
+  "settingsThemeDark": "深色",
+  "settingsTextSize": "字号",
+  "settingsFontSmall": "小",
+  "settingsFontDefault": "默认",
+  "settingsFontLarge": "大",
+  "settingsFontXl": "特大",
+  "settingsHideToolCalls": "在聊天里隐藏工具调用",
+  "settingsHideToolCallsSubtitle": "只显示你的消息和助手回复。",
+  "settingsTapPlusToPair": "点 + 配对一台新电脑。",
+  "settingsNickname": "备注名",
+  "settingsNicknameLocalOnly": "仅本机 — 不会通知电脑。",
+  "settingsNicknameDefault": "默认：{name}",
+  "@settingsNicknameDefault": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "settingsRemoveNickname": "移除备注名",
+  "settingsRevokeTitle": "撤销“{name}”？",
+  "@settingsRevokeTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "settingsRevokeBody": "之后需要在电脑上重新配对才能连上。",
+  "settingsRevoke": "撤销",
+  "settingsEditNickname": "编辑备注名",
+  "settingsNoPairingsHint": "点 + 配对一台新电脑。",
+
+  "updateAvailable": "有新版本",
+  "updateTapToDownload": "v{version} · 点一下下载 APK",
+  "@updateTapToDownload": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+
+  "syncRequired": "需要同步",
+  "syncWhyIos": "Remote Pi 把你的 Ed25519 所有者密钥存在 iCloud 钥匙串里，换 iPhone 或配对 iPad 时不用重新扫码。",
+  "syncWhyAndroid": "Remote Pi 把你的 Ed25519 所有者密钥存在 Google Block Store 里，换机通过 Google 备份就能恢复，配对过的 Pi 不会丢。",
+  "syncToEnable": "在这台设备上这样打开：",
+  "syncCheckAgain": "再检查一次",
+  "syncAndroidLock": "设置锁屏",
+  "syncAndroidLockPath": "设置 › 安全 › 屏幕锁定",
+  "syncAndroidLockNote": "PIN、图案或生物识别 — Block Store 需要这个。",
+  "syncAndroidBackup": "打开 Google 备份",
+  "syncAndroidBackupPath": "设置 › 系统 › 备份\n（三星：设置 › 账号和备份 › 备份数据）",
+  "syncAndroidGoogle": "登录 Google 账号",
+  "syncAndroidGooglePath": "设置 › 密码和账号 › 添加账号 › Google",
+  "syncIosIcloud": "登录 iCloud",
+  "syncIosIcloudPath": "设置 › [你的名字]",
+  "syncIosIcloudNote": "如果顶部显示“登录 iPhone”，点一下。",
+  "syncIosKeychain": "打开 iCloud 钥匙串",
+  "syncIosKeychainPath": "设置 › [你的名字] › iCloud › 密码与钥匙串",
+  "syncIosKeychainNote": "打开“同步此 iPhone”。"
+}

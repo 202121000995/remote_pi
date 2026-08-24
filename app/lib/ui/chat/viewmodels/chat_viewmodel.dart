@@ -10,6 +10,7 @@ import 'package:app/data/transport/connection_manager.dart';
 import 'package:app/domain/session_state.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/protocol/protocol.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/chat/states/chat_state.dart';
 import 'package:app/ui/core/viewmodel/viewmodel.dart';
 
@@ -261,7 +262,7 @@ class ChatViewModel extends ViewModel<ChatState> {
         if (isWarning) {
           _pendingUiError = (req.message?.isNotEmpty ?? false)
               ? req.message
-              : 'Answer was not accepted.';
+              : appL10n.chatAnswerNotAccepted;
         } else {
           _pendingUiRequest = null;
           _pendingUiError = null;
@@ -342,7 +343,7 @@ class ChatViewModel extends ViewModel<ChatState> {
     _recompute();
     final sent = await _sync.respondExtensionUi(resp);
     if (!sent) {
-      _pendingUiError = 'Not connected — check the link to Pi and retry.';
+      _pendingUiError = appL10n.chatNotConnected;
       _recompute();
     }
   }

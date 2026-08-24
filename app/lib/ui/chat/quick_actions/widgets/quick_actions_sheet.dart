@@ -4,6 +4,7 @@ import 'package:app/config/dependencies.dart';
 import 'package:app/data/actions/actions_repository.dart' show ActionFailure;
 import 'package:app/protocol/protocol.dart';
 import 'package:app/routing/adaptive.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/chat/quick_actions/states/quick_actions_state.dart';
 import 'package:app/ui/chat/quick_actions/viewmodels/quick_actions_viewmodel.dart';
@@ -89,8 +90,10 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
     });
   }
 
-  void _showError(String message) =>
-      _toast(message, widget.messenger.context.colors.error);
+  void _showError(String message) => _toast(
+    localizeActionError(message),
+    widget.messenger.context.colors.error,
+  );
 
   /// Toasts go through the chat scaffold's messenger (captured before the
   /// sheet opened) so success/failure feedback survives the sheet being
@@ -134,13 +137,13 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
             const SizedBox(height: 10),
             _DragHandle(),
             const SizedBox(height: 6),
-            const _SheetTitle(text: 'Quick actions'),
+            _SheetTitle(text: context.l10n.chatQuickActions),
             const _Divider(),
             _ActionTile(
               key: const Key('qa-compact'),
               icon: LucideIcons.shrink,
-              label: 'Compact context',
-              subtitle: 'Summarize old turns to free room.',
+              label: context.l10n.chatCompactContext,
+              subtitle: context.l10n.chatCompactSubtitle,
               busy: busyAction == ActionName.sessionCompact,
               onTap: () => _onCompact(vm),
             ),
@@ -148,8 +151,8 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
             _ActionTile(
               key: const Key('qa-new-session'),
               icon: LucideIcons.sparkles,
-              label: 'New session',
-              subtitle: 'Clears the conversation on the Pi.',
+              label: context.l10n.chatNewSession,
+              subtitle: context.l10n.chatNewSessionSubtitle,
               busy: busyAction == ActionName.sessionNew,
               onTap: () => _onNewSession(vm),
             ),
@@ -206,7 +209,7 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
             side: BorderSide(color: colors.border),
           ),
           title: Text(
-            'Start a new session?',
+            dCtx.l10n.chatNewSessionConfirmTitle,
             style: TextStyle(
               fontFamily: kMonoFamily,
               fontSize: 14,
@@ -214,8 +217,7 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
             ),
           ),
           content: Text(
-            'This clears the Pi-side conversation history. The current '
-            'thread cannot be resumed.',
+            dCtx.l10n.chatNewSessionConfirmBody,
             style: TextStyle(
               fontFamily: kMonoFamily,
               fontSize: 12,
@@ -226,7 +228,7 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(false),
               child: Text(
-                'Cancel',
+                dCtx.l10n.commonCancel,
                 style: TextStyle(fontFamily: kMonoFamily, color: colors.muted),
               ),
             ),
@@ -236,9 +238,9 @@ class _QuickActionsSheetBodyState extends State<QuickActionsSheetBody> {
                 foregroundColor: colors.onAccent,
               ),
               onPressed: () => Navigator.of(dCtx).pop(true),
-              child: const Text(
-                'Start new',
-                style: TextStyle(fontFamily: kMonoFamily),
+              child: Text(
+                dCtx.l10n.chatStartNew,
+                style: const TextStyle(fontFamily: kMonoFamily),
               ),
             ),
           ],
@@ -409,7 +411,9 @@ class _ModelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final label = currentLabel ?? (busy ? 'Switching…' : 'Choose a model');
+    final label =
+        currentLabel ??
+        (busy ? context.l10n.chatSwitchingModel : context.l10n.chatChooseModel);
     return InkWell(
       key: const Key('qa-model-row'),
       onTap: busy ? null : onTap,
@@ -424,7 +428,7 @@ class _ModelRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Model',
+                    context.l10n.chatModel,
                     style: TextStyle(
                       fontFamily: kMonoFamily,
                       fontSize: 11,
@@ -484,7 +488,7 @@ class _ThinkingRow extends StatelessWidget {
               Icon(LucideIcons.brain, color: colors.accent, size: 18),
               const SizedBox(width: 14),
               Text(
-                'Thinking',
+                context.l10n.chatThinking,
                 style: TextStyle(
                   fontFamily: kMonoFamily,
                   fontSize: 11,
@@ -523,14 +527,15 @@ class _ThinkingSegmented extends StatelessWidget {
 
   // Short label shown in the segmented buttons. Matches the SDK's
   // ThinkingLevel order (off → xhigh).
-  static const _labels = <ThinkingLevel, String>{
-    ThinkingLevel.off: 'off',
-    ThinkingLevel.minimal: 'min',
-    ThinkingLevel.low: 'low',
-    ThinkingLevel.medium: 'med',
-    ThinkingLevel.high: 'high',
-    ThinkingLevel.xhigh: 'x',
-  };
+  static String _label(AppLocalizations l10n, ThinkingLevel level) =>
+      switch (level) {
+        ThinkingLevel.off => l10n.chatThinkingOff,
+        ThinkingLevel.minimal => l10n.chatThinkingMin,
+        ThinkingLevel.low => l10n.chatThinkingLow,
+        ThinkingLevel.medium => l10n.chatThinkingMed,
+        ThinkingLevel.high => l10n.chatThinkingHigh,
+        ThinkingLevel.xhigh => l10n.chatThinkingXhigh,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -545,7 +550,7 @@ class _ThinkingSegmented extends StatelessWidget {
             Expanded(
               child: _SegButton(
                 key: Key('qa-thinking-${level.wire}'),
-                label: _labels[level]!,
+                label: _label(context.l10n, level),
                 selected: current == level,
                 disabled: disabled,
                 onTap: () => onPick(level),

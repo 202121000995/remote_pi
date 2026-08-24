@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/routing/adaptive.dart';
 import 'package:app/ui/chat/quick_actions/widgets/dismiss_on_session_change.dart';
 import 'package:app/ui/core/themes/themes.dart';
@@ -57,13 +58,13 @@ class _AttachSheetBody extends StatelessWidget {
             _AttachOption(
               key: const Key('attach-camera'),
               icon: LucideIcons.camera,
-              label: 'Camera',
+              label: context.l10n.chatCamera,
               onTap: () => Navigator.of(context).pop(AttachSource.camera),
             ),
             _AttachOption(
               key: const Key('attach-gallery'),
               icon: LucideIcons.image,
-              label: 'Photo Library',
+              label: context.l10n.chatPhotoLibrary,
               onTap: () => Navigator.of(context).pop(AttachSource.gallery),
             ),
           ],

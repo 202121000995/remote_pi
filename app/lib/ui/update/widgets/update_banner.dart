@@ -1,4 +1,5 @@
 import 'package:app/domain/entities/update_info.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/update/states/update_banner_state.dart';
 import 'package:app/ui/update/viewmodels/update_banner_viewmodel.dart';
@@ -78,7 +79,7 @@ class _UpdateCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Update available',
+                        context.l10n.updateAvailable,
                         overflow: TextOverflow.ellipsis,
                         style: context.typo.sansBody.copyWith(
                           color: colors.text,
@@ -88,7 +89,7 @@ class _UpdateCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'v${info.version} · tap to download the APK',
+                        context.l10n.updateTapToDownload(info.version),
                         overflow: TextOverflow.ellipsis,
                         style: context.typo.monoSmall.copyWith(
                           color: colors.muted,
@@ -100,7 +101,7 @@ class _UpdateCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 IconButton(
                   key: const Key('update-banner-dismiss'),
-                  tooltip: 'Dismiss',
+                  tooltip: context.l10n.commonDismiss,
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.all(6),
                   constraints: const BoxConstraints(),

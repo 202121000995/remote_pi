@@ -2,6 +2,7 @@
 // the per-tab empty state. Pure view widgets; `context.colors` falls back to
 // the dark palette outside the themed tree, so a bare MaterialApp is enough.
 
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/home/states/home_state.dart';
 import 'package:app/ui/home/widgets/home_filter_tabs.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +30,9 @@ void main() {
 
     testWidgets('renders the three tabs with their counts', (tester) async {
       await pump(tester);
-      expect(find.text('All'), findsOneWidget);
-      expect(find.text('Online'), findsOneWidget);
-      expect(find.text('Offline'), findsOneWidget);
+      expect(find.text(appL10n.homeFilterAll), findsOneWidget);
+      expect(find.text(appL10n.homeFilterOnline), findsOneWidget);
+      expect(find.text(appL10n.homeFilterOffline), findsOneWidget);
       // Distinct counts so each digit maps to exactly one badge.
       expect(find.text('3'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
@@ -44,13 +45,13 @@ void main() {
       HomeFilter? picked;
       await pump(tester, onSelected: (f) => picked = f);
 
-      await tester.tap(find.text('Offline'));
+      await tester.tap(find.text(appL10n.homeFilterOffline));
       expect(picked, HomeFilter.offline);
 
-      await tester.tap(find.text('All'));
+      await tester.tap(find.text(appL10n.homeFilterAll));
       expect(picked, HomeFilter.all);
 
-      await tester.tap(find.text('Online'));
+      await tester.tap(find.text(appL10n.homeFilterOnline));
       expect(picked, HomeFilter.online);
     });
   });
@@ -66,12 +67,12 @@ void main() {
 
     testWidgets('online tab → "No sessions online"', (tester) async {
       await pump(tester, HomeFilter.online);
-      expect(find.text('No sessions online'), findsOneWidget);
+      expect(find.text(appL10n.homeNoSessionsOnline), findsOneWidget);
     });
 
     testWidgets('offline tab → "No offline sessions"', (tester) async {
       await pump(tester, HomeFilter.offline);
-      expect(find.text('No offline sessions'), findsOneWidget);
+      expect(find.text(appL10n.homeNoSessionsOffline), findsOneWidget);
     });
   });
 }

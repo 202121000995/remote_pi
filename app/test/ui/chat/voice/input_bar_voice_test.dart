@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:app/data/voice/speech_service.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/chat/voice/viewmodels/voice_input_viewmodel.dart';
 import 'package:app/ui/chat/widgets/input_bar.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ void main() {
 
     await gesture.moveBy(const Offset(-150, 0)); // past the 90px threshold
     await tester.pump();
-    expect(find.text('release to cancel'), findsOneWidget);
+    expect(find.text(appL10n.chatReleaseToCancel), findsOneWidget);
 
     await gesture.up();
     await tester.pump();

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app/data/local/boxes.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/data/preferences/preferences.dart';
 import 'package:app/data/repositories/session_read_repository.dart';
 import 'package:app/data/sync/sync_service.dart';
@@ -293,10 +294,7 @@ void main() {
 
     final state = h.vm.state as ChatReady;
     expect(state.pendingUiRequest?.id, 'tool:f1', reason: 'modal stays open');
-    expect(
-      state.pendingUiError,
-      'Not connected — check the link to Pi and retry.',
-    );
+    expect(state.pendingUiError, appL10n.chatNotConnected);
     expect(h.ch.sent, isEmpty);
 
     h.vm.dispose();

@@ -1,6 +1,7 @@
 import 'package:app/data/preferences/preferences.dart';
 import 'package:app/data/transport/relay_config.dart';
 import 'package:app/pairing/storage.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/settings/states/settings_state.dart';
 import 'package:app/ui/settings/viewmodels/settings_viewmodel.dart';
@@ -28,7 +29,7 @@ class SettingsPage extends StatelessWidget {
       backgroundColor: colors.bg,
       appBar: AppBar(
         backgroundColor: colors.bg,
-        title: const Text('Settings'),
+        title: Text(context.l10n.settingsTitle),
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: Icon(
@@ -36,7 +37,9 @@ class SettingsPage extends StatelessWidget {
             size: embedded ? 22 : 18,
             color: colors.text,
           ),
-          tooltip: embedded ? 'Close' : 'Back',
+          tooltip: embedded
+              ? context.l10n.commonClose
+              : context.l10n.commonBack,
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/home'),
         ),
@@ -52,7 +55,7 @@ class SettingsPage extends StatelessWidget {
           Divider(color: colors.border, height: 1),
           const _DisplaySection(),
           Divider(color: colors.border, height: 1),
-          const _SectionHeader('Pairings'),
+          _SectionHeader(context.l10n.settingsPairings),
           switch (state) {
             SettingsLoading() => Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
@@ -99,7 +102,7 @@ class _AddPairingButton extends StatelessWidget {
         ),
         icon: const Icon(LucideIcons.scanQrCode, size: 18),
         label: Text(
-          'Add new pairing',
+          context.l10n.settingsAddPairing,
           style: const TextStyle(fontFamily: kMonoFamily, fontSize: 13),
         ),
       ),
@@ -138,12 +141,12 @@ class _RelaySectionState extends State<_RelaySection> {
     setState(() => _error = err);
     if (err == null) {
       messenger.showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Relay updated',
-            style: TextStyle(fontFamily: kMonoFamily),
+            context.l10n.settingsRelayUpdated,
+            style: const TextStyle(fontFamily: kMonoFamily),
           ),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -156,7 +159,7 @@ class _RelaySectionState extends State<_RelaySection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionHeader('Relay'),
+        _SectionHeader(context.l10n.homeRelay),
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
           child: Column(
@@ -175,7 +178,9 @@ class _RelaySectionState extends State<_RelaySection> {
                     color: colors.muted,
                     fontSize: 12,
                   ),
-                  helperText: 'Current: ${vm.effectiveRelayUrl}',
+                  helperText: context.l10n.settingsCurrentRelay(
+                    vm.effectiveRelayUrl,
+                  ),
                   helperStyle: context.typo.mono.copyWith(
                     fontSize: 10,
                     color: colors.muted,
@@ -217,7 +222,7 @@ class _RelaySectionState extends State<_RelaySection> {
                         ),
                       ),
                       child: Text(
-                        'Save',
+                        context.l10n.commonSave,
                         style: const TextStyle(
                           fontFamily: kMonoFamily,
                           fontSize: 13,
@@ -231,7 +236,7 @@ class _RelaySectionState extends State<_RelaySection> {
                         _save();
                       },
                       child: Text(
-                        'Use default Relay',
+                        context.l10n.settingsUseDefaultRelay,
                         style: const TextStyle(
                           fontFamily: kMonoFamily,
                           fontSize: 13,
@@ -259,7 +264,7 @@ class _DisplaySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionHeader('Display'),
+        _SectionHeader(context.l10n.settingsDisplay),
         // Theme mode — System follows the OS; Light / Dark pin it.
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 4, 18, 4),
@@ -267,7 +272,7 @@ class _DisplaySection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Theme',
+                context.l10n.settingsTheme,
                 style: context.typo.sansBody.copyWith(color: colors.text),
               ),
               const SizedBox(height: 10),
@@ -275,18 +280,18 @@ class _DisplaySection extends StatelessWidget {
                 width: double.infinity,
                 child: SegmentedButton<ThemeMode>(
                   showSelectedIcon: false,
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: ThemeMode.system,
-                      label: Text('System'),
+                      label: Text(context.l10n.settingsThemeSystem),
                     ),
                     ButtonSegment(
                       value: ThemeMode.light,
-                      label: Text('Light'),
+                      label: Text(context.l10n.settingsThemeLight),
                     ),
                     ButtonSegment(
                       value: ThemeMode.dark,
-                      label: Text('Dark'),
+                      label: Text(context.l10n.settingsThemeDark),
                     ),
                   ],
                   selected: {prefs.themeMode},
@@ -305,7 +310,7 @@ class _DisplaySection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Text size',
+                context.l10n.settingsTextSize,
                 style: context.typo.sansBody.copyWith(color: colors.text),
               ),
               const SizedBox(height: 10),
@@ -315,7 +320,10 @@ class _DisplaySection extends StatelessWidget {
                   showSelectedIcon: false,
                   segments: [
                     for (final scale in AppFontScale.values)
-                      ButtonSegment(value: scale, label: Text(scale.label)),
+                      ButtonSegment(
+                        value: scale,
+                        label: Text(scale.localizedLabel(context.l10n)),
+                      ),
                   ],
                   selected: {prefs.fontScale},
                   onSelectionChanged: (s) => prefs.setFontScale(s.first),
@@ -328,11 +336,11 @@ class _DisplaySection extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 18),
           activeThumbColor: colors.accent,
           title: Text(
-            'Hide tool calls in chat',
+            context.l10n.settingsHideToolCalls,
             style: context.typo.sansBody.copyWith(color: colors.text),
           ),
           subtitle: Text(
-            'Only show your messages and the assistant replies.',
+            context.l10n.settingsHideToolCallsSubtitle,
             style: context.typo.sansBody.copyWith(
               color: colors.muted,
               fontSize: 12,
@@ -382,12 +390,12 @@ class _EmptyState extends StatelessWidget {
           Icon(LucideIcons.monitorSmartphone, color: colors.muted, size: 40),
           const SizedBox(height: 12),
           Text(
-            'No pairings yet',
+            context.l10n.homeNoPairings,
             style: TextStyle(color: colors.muted2, fontSize: 14),
           ),
           const SizedBox(height: 6),
           Text(
-            'Tap + to pair a new Mac.',
+            context.l10n.settingsNoPairingsHint,
             style: TextStyle(color: colors.muted, fontSize: 12),
           ),
           const SizedBox(height: 20),
@@ -398,7 +406,7 @@ class _EmptyState extends StatelessWidget {
               foregroundColor: colors.onAccent,
             ),
             icon: const Icon(LucideIcons.scanQrCode, size: 18),
-            label: const Text('Scan QR'),
+            label: Text(context.l10n.homeScanQr),
           ),
         ],
       ),

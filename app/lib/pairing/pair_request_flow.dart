@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:app/data/transport/relay_config.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/protocol/protocol.dart' show PairOk;
 import 'package:app/protocol/uuid7.dart';
 
@@ -66,6 +67,7 @@ Future<PairingResult> performPairing({
   required PeerTransport transport,
   required PairingStorage storage,
   required String deviceName,
+
   /// Effective relay URL the app is currently connected to. Used to
   /// detect mismatch vs `qr.relayUrl` for legacy QRs. Passed in by
   /// the caller (PairingViewModel reads it from Preferences).
@@ -81,10 +83,7 @@ Future<PairingResult> performPairing({
       toWsRelayUrl(qr.relayUrl!) != toWsRelayUrl(currentRelayUrl)) {
     throw PairingError(
       code: 'relay_mismatch',
-      message: 'QR points to "${qr.relayUrl}", '
-          'but the app is configured for "$currentRelayUrl". '
-          'Update the relay in settings or ask the Pi to generate '
-          'a new QR.',
+      message: appL10n.pairingRelayMismatch(qr.relayUrl!, currentRelayUrl),
     );
   }
 
@@ -130,9 +129,7 @@ Future<PairingResult> performPairing({
     // only in the latter case do we want to fall back to qr.roomId.
     final rawRoom = inner['room_id'];
     final piEchoedRoom = rawRoom is String && rawRoom.isNotEmpty;
-    final piRoomId = piEchoedRoom
-        ? pairOk.roomId
-        : (qr.roomId ?? 'main');
+    final piRoomId = piEchoedRoom ? pairOk.roomId : (qr.roomId ?? 'main');
     final peer = PeerRecord(
       remoteEpk: qr.epk,
       sessionName: pairOk.sessionName,
@@ -159,7 +156,7 @@ Future<PairingResult> performPairing({
 
   throw PairingError(
     code: 'unexpected_response',
-    message: 'Unknown response type: $type',
+    message: appL10n.pairingUnknownResponse('$type'),
   );
 }
 
@@ -172,18 +169,16 @@ Future<PairingResult> performPairingWithRelay(
   required PeerTransport transport,
   required PairingStorage storage,
   required String deviceName,
-}) =>
-    performPairing(
-      qr: qr,
-      transport: transport,
-      storage: storage,
-      deviceName: deviceName,
-      currentRelayUrl: currentRelayUrl,
-    );
+}) => performPairing(
+  qr: qr,
+  transport: transport,
+  storage: storage,
+  deviceName: deviceName,
+  currentRelayUrl: currentRelayUrl,
+);
 
 // Silence "unused" once we wire helpers from caller-side; relay_config
 // is intentionally imported because PairingViewModel and tests may
 // resolve currentRelayUrl via it.
 // ignore: unused_element
 void _keepRelayConfigImport() => resolveRelayUrl;
-

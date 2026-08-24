@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
@@ -13,22 +14,25 @@ Future<bool> showRevokeConfirmDialog(
     builder: (ctx) => AlertDialog(
       backgroundColor: ctx.colors.surface,
       title: Text(
-        'Revoke "${peer.sessionName}"?',
+        ctx.l10n.settingsRevokeTitle(peer.sessionName),
         style: TextStyle(color: ctx.colors.text),
       ),
       content: Text(
-        "You'll need to pair again from the PC or Mac to reconnect.",
+        ctx.l10n.settingsRevokeBody,
         style: TextStyle(color: ctx.colors.muted2),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: Text('Cancel', style: TextStyle(color: ctx.colors.muted2)),
+          child: Text(
+            ctx.l10n.commonCancel,
+            style: TextStyle(color: ctx.colors.muted2),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(true),
           child: Text(
-            'Revoke',
+            ctx.l10n.settingsRevoke,
             style: TextStyle(color: ctx.colors.error),
           ),
         ),

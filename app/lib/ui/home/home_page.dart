@@ -2,6 +2,7 @@ import 'package:app/data/transport/epk_encoding.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/protocol/protocol.dart' show RoomInfo;
 import 'package:app/routing/adaptive.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/home/states/home_state.dart';
 import 'package:app/ui/settings/settings_sheet.dart';
@@ -96,7 +97,7 @@ class HomePage extends StatelessWidget {
       automaticallyImplyLeading: false,
       actions: [
         IconButton(
-          tooltip: 'Settings',
+          tooltip: context.l10n.commonSettings,
           icon: Icon(LucideIcons.settings, color: colors.muted2),
           // Tablet → bottom sheet (keeps the chat in context); phone →
           // full-screen push. See openSettings.
@@ -133,7 +134,7 @@ class HomePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Remote Pi',
+                          context.l10n.appTitle,
                           style: brandTextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w700,
@@ -162,7 +163,7 @@ class HomePage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Remote Pi',
+                        context.l10n.appTitle,
                         style: brandTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -209,15 +210,15 @@ class HomePage extends StatelessWidget {
     final Color statusColor;
     if (connected) {
       dotColor = colors.success;
-      statusLabel = 'Connected';
+      statusLabel = context.l10n.homeConnected;
       statusColor = colors.muted;
     } else if (awaitingPairing) {
       dotColor = colors.muted;
-      statusLabel = 'Awaiting pairing';
+      statusLabel = context.l10n.homeAwaitingPairing;
       statusColor = colors.muted;
     } else {
       dotColor = colors.warning;
-      statusLabel = 'Offline';
+      statusLabel = context.l10n.homeOffline;
       statusColor = colors.warning;
     }
     return Row(
@@ -230,7 +231,7 @@ class HomePage extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          'Relay',
+          context.l10n.homeRelay,
           style: TextStyle(
             fontFamily: kMonoFamily,
             color: colors.text,
@@ -392,7 +393,7 @@ class HomePage extends StatelessWidget {
               ListTile(
                 leading: Icon(LucideIcons.pencil, color: colors.accent),
                 title: Text(
-                  'Rename session',
+                  sheetCtx.l10n.homeRenameSession,
                   style: TextStyle(color: colors.text),
                 ),
                 onTap: () {
@@ -407,12 +408,12 @@ class HomePage extends StatelessWidget {
                 ),
                 enabled: !isLive,
                 title: Text(
-                  'Delete session (local only)',
+                  sheetCtx.l10n.homeDeleteSessionLocal,
                   style: TextStyle(color: isLive ? colors.muted : colors.text),
                 ),
                 subtitle: isLive
                     ? Text(
-                        'Only available when the room is offline',
+                        sheetCtx.l10n.homeDeleteSessionOnlyOffline,
                         style: TextStyle(color: colors.muted, fontSize: 11),
                       )
                     : null,
@@ -442,13 +443,16 @@ class HomePage extends StatelessWidget {
         final colors = dCtx.colors;
         return AlertDialog(
           backgroundColor: colors.bg,
-          title: Text('Rename session', style: TextStyle(color: colors.text)),
+          title: Text(
+            dCtx.l10n.homeRenameSession,
+            style: TextStyle(color: colors.text),
+          ),
           content: TextField(
             controller: controller,
             autofocus: true,
             style: TextStyle(color: colors.text, fontFamily: kMonoFamily),
             decoration: InputDecoration(
-              hintText: it.room.cwd ?? 'Session',
+              hintText: it.room.cwd ?? dCtx.l10n.homeSession,
               hintStyle: TextStyle(color: colors.muted),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: colors.border),
@@ -461,11 +465,17 @@ class HomePage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(null),
-              child: Text('Cancel', style: TextStyle(color: colors.muted)),
+              child: Text(
+                dCtx.l10n.commonCancel,
+                style: TextStyle(color: colors.muted),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(controller.text.trim()),
-              child: Text('Save', style: TextStyle(color: colors.accent)),
+              child: Text(
+                dCtx.l10n.commonSave,
+                style: TextStyle(color: colors.accent),
+              ),
             ),
           ],
         );
@@ -486,20 +496,28 @@ class HomePage extends StatelessWidget {
         final colors = dCtx.colors;
         return AlertDialog(
           backgroundColor: colors.bg,
-          title: Text('Delete session?', style: TextStyle(color: colors.text)),
+          title: Text(
+            dCtx.l10n.homeDeleteSessionTitle,
+            style: TextStyle(color: colors.text),
+          ),
           content: Text(
-            'Removes locally only. If the session comes back online on '
-            'the Pi, it reappears in the list.',
+            dCtx.l10n.homeDeleteSessionBody,
             style: TextStyle(color: colors.muted, fontSize: 12),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(false),
-              child: Text('Cancel', style: TextStyle(color: colors.muted)),
+              child: Text(
+                dCtx.l10n.commonCancel,
+                style: TextStyle(color: colors.muted),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(true),
-              child: Text('Delete', style: TextStyle(color: colors.error)),
+              child: Text(
+                dCtx.l10n.commonDelete,
+                style: TextStyle(color: colors.error),
+              ),
             ),
           ],
         );
@@ -599,7 +617,7 @@ class _LonelyEmptyState extends StatelessWidget {
                 Icon(LucideIcons.moon, color: colors.muted, size: 56),
                 const SizedBox(height: 18),
                 Text(
-                  'Nothing here…',
+                  context.l10n.homeNothingHere,
                   style: TextStyle(
                     fontFamily: kMonoFamily,
                     color: colors.muted2,
@@ -609,7 +627,7 @@ class _LonelyEmptyState extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'When a paired Pi opens a session, it shows up here.',
+                  context.l10n.homeNothingHereSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: kMonoFamily,
@@ -644,12 +662,12 @@ class _EmptyState extends StatelessWidget {
               Icon(LucideIcons.scanQrCode, color: colors.muted, size: 48),
               const SizedBox(height: 16),
               Text(
-                'No pairings yet',
+                context.l10n.homeNoPairings,
                 style: TextStyle(color: colors.muted2, fontSize: 14),
               ),
               const SizedBox(height: 6),
               Text(
-                'Scan a QR from your Mac to start.',
+                context.l10n.homeNoPairingsHint,
                 style: TextStyle(color: colors.muted, fontSize: 12),
               ),
               const SizedBox(height: 24),
@@ -660,7 +678,7 @@ class _EmptyState extends StatelessWidget {
                   foregroundColor: colors.onAccent,
                 ),
                 icon: const Icon(LucideIcons.scanQrCode, size: 18),
-                label: const Text('Scan QR'),
+                label: Text(context.l10n.homeScanQr),
               ),
             ],
           ),

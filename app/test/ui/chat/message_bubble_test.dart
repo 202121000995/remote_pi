@@ -2,6 +2,7 @@
 // 340px cap (user-reported: markdown reply not filling the horizontal space).
 
 import 'package:app/domain/session_state.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/chat/widgets/agent_markdown.dart';
 import 'package:app/ui/chat/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
@@ -79,8 +80,8 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text('steering…'), findsOneWidget);
-    expect(find.text('sending…'), findsNothing);
+    expect(find.text(appL10n.chatSteering), findsOneWidget);
+    expect(find.text(appL10n.chatSending), findsNothing);
   });
 
   testWidgets('confirmed steer bubble keeps steering label', (tester) async {
@@ -94,7 +95,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text('steering…'), findsOneWidget);
+    expect(find.text(appL10n.chatSteering), findsOneWidget);
   });
 
   testWidgets('pending normal bubble keeps sending label', (tester) async {
@@ -112,6 +113,6 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text('sending…'), findsOneWidget);
+    expect(find.text(appL10n.chatSending), findsOneWidget);
   });
 }

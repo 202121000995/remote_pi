@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:app/data/preferences/preferences.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/data/transport/channel.dart';
 import 'package:app/data/transport/connection_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -281,7 +282,7 @@ void main() {
       expect(vm.state, isA<PairingError>());
       final err = vm.state as PairingError;
       expect(err.canRetry, isTrue);
-      expect(err.message, contains('QR expired'));
+      expect(err.message, appL10n.pairingQrExpired);
       expect(storage._saved, isEmpty);
 
       vm.dispose();

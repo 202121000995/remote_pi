@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -20,7 +21,7 @@ class WelcomeStep extends StatelessWidget {
           Icon(LucideIcons.terminal, color: colors.accent, size: 64),
           const SizedBox(height: 32),
           Text(
-            'Remote Pi',
+            context.l10n.appTitle,
             textAlign: TextAlign.center,
             style: brandTextStyle(
               fontSize: 24,
@@ -31,7 +32,7 @@ class WelcomeStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Control your Pi agent from anywhere',
+            context.l10n.onboardingTagline,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kMonoFamily,
@@ -41,9 +42,7 @@ class WelcomeStep extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            'Pair this app with the Pi running on your computer '
-            '(Mac, Linux, or Windows) so you can chat with it even '
-            'when you\'re away from home.',
+            context.l10n.onboardingBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kMonoFamily,
@@ -63,9 +62,9 @@ class WelcomeStep extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(6)),
               ),
             ),
-            child: const Text(
-              'Get started',
-              style: TextStyle(
+            child: Text(
+              context.l10n.onboardingGetStarted,
+              style: const TextStyle(
                 fontFamily: kMonoFamily,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

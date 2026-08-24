@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app/data/actions/actions_repository.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/data/images/image_picker_service.dart';
 import 'package:app/data/local/boxes.dart';
 import 'package:app/data/preferences/preferences.dart';
@@ -134,7 +135,7 @@ void main() {
 
       // Status dot uses initialOnline before the runtime resolves → shows
       // "online" immediately instead of flashing offline/reconnecting.
-      expect(find.text('online'), findsOneWidget);
+      expect(find.text(appL10n.chatOnline), findsOneWidget);
 
       // Unmount + dispose in-body (the framework's pending-timer check runs
       // before addTearDown; conn's watchdog must be cancelled here).

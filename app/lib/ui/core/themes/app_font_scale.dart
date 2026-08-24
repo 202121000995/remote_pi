@@ -1,3 +1,5 @@
+import 'package:app/l10n/l10n.dart';
+
 /// User-selectable text size (issue #114).
 ///
 /// Why an in-app control at all: every text size in the app is hardcoded
@@ -20,11 +22,19 @@ enum AppFontScale {
 
   const AppFontScale(this.label, this.factor);
 
-  /// Short label for the Settings segmented control.
+  /// Short English label kept for persistence/debug; UI uses [localizedLabel].
   final String label;
 
   /// Multiplier applied to every text size in the app.
   final double factor;
+
+  /// Segmented-control label in the active locale.
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+    AppFontScale.small => l10n.settingsFontSmall,
+    AppFontScale.standard => l10n.settingsFontDefault,
+    AppFontScale.large => l10n.settingsFontLarge,
+    AppFontScale.extraLarge => l10n.settingsFontXl,
+  };
 
   /// Parse a persisted value. Unknown/legacy/missing → [standard], so a bad
   /// stored string can never leave the app with unreadable text.

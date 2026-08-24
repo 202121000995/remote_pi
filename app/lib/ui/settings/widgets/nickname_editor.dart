@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -21,9 +22,7 @@ Future<String?> showNicknameEditor(
       borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
     ),
     builder: (ctx) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(ctx).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
       child: _NicknameEditorSheet(
         currentNickname: currentNickname,
         defaultName: defaultName,
@@ -90,7 +89,7 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
             ),
           ),
           Text(
-            'Nickname',
+            context.l10n.settingsNickname,
             style: TextStyle(
               color: colors.text,
               fontSize: 16,
@@ -99,7 +98,7 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Local only — the Mac is not notified.',
+            context.l10n.settingsNicknameLocalOnly,
             style: TextStyle(color: colors.muted, fontSize: 12),
           ),
           const SizedBox(height: 16),
@@ -110,9 +109,11 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
             style: TextStyle(color: colors.text, fontSize: 15),
             cursorColor: colors.accent,
             decoration: InputDecoration(
-              labelText: 'Nickname',
+              labelText: context.l10n.settingsNickname,
               labelStyle: TextStyle(color: colors.muted),
-              helperText: 'Default: ${widget.defaultName}',
+              helperText: context.l10n.settingsNicknameDefault(
+                widget.defaultName,
+              ),
               helperStyle: TextStyle(color: colors.muted, fontSize: 11),
               counterStyle: TextStyle(color: colors.muted, fontSize: 11),
             ),
@@ -124,7 +125,7 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
               onPressed: _remove,
               style: TextButton.styleFrom(foregroundColor: colors.error),
               icon: const Icon(LucideIcons.trash2, size: 16),
-              label: const Text('Remove nickname'),
+              label: Text(context.l10n.settingsRemoveNickname),
             ),
             const SizedBox(height: 4),
           ],
@@ -138,7 +139,7 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
                     side: BorderSide(color: colors.border),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
               ),
               const SizedBox(width: 10),
@@ -150,9 +151,9 @@ class _NicknameEditorSheetState extends State<_NicknameEditorSheet> {
                     foregroundColor: colors.onAccent,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  child: Text(
+                    context.l10n.commonSave,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

@@ -7,6 +7,7 @@ import 'package:app/ui/chat/attachment/viewmodels/attachment_viewmodel.dart';
 import 'package:app/ui/chat/voice/states/voice_input_state.dart';
 import 'package:app/ui/chat/voice/viewmodels/voice_input_viewmodel.dart';
 import 'package:app/ui/chat/voice/widgets/recording_strip.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -392,12 +393,12 @@ class _InputBarState extends State<InputBar> {
                       cursorColor: colors.accent,
                       decoration: InputDecoration(
                         hintText: widget.disabled
-                            ? 'Offline…'
+                            ? context.l10n.chatHintOffline
                             : widget.streaming
-                            ? 'Steer current response…'
+                            ? context.l10n.chatHintSteer
                             : hasImage
-                            ? 'Add a caption…'
-                            : 'Send a message…',
+                            ? context.l10n.chatHintCaption
+                            : context.l10n.chatHintSend,
                         hintStyle: TextStyle(
                           color: colors.muted,
                           fontFamily: kMonoFamily,
@@ -538,7 +539,9 @@ class _QueuedMessagePreview extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        editable ? 'Queued. Tap to edit.' : 'Queued follow-up.',
+                        editable
+                            ? context.l10n.chatQueuedEdit
+                            : context.l10n.chatQueuedFollowup,
                         style: TextStyle(
                           color: colors.accent,
                           fontFamily: kMonoFamily,
@@ -568,7 +571,7 @@ class _QueuedMessagePreview extends StatelessWidget {
                     height: 28,
                     child: IconButton(
                       key: const Key('input-bar-clear-queued'),
-                      tooltip: 'Clear queued message',
+                      tooltip: context.l10n.chatClearQueued,
                       padding: EdgeInsets.zero,
                       iconSize: 16,
                       splashRadius: 16,
@@ -631,7 +634,7 @@ class _AttachButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         iconSize: 18,
         splashRadius: 18,
-        tooltip: 'Attach image',
+        tooltip: context.l10n.chatAttachImage,
         icon: Icon(
           LucideIcons.paperclip,
           color: enabled
@@ -721,7 +724,7 @@ class _TranscribingStrip extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Text(
-          'transcribing…',
+          context.l10n.chatTranscribing,
           style: TextStyle(
             fontFamily: kMonoFamily,
             fontSize: 12,
@@ -809,7 +812,7 @@ class _QuickActionsButtonState extends State<_QuickActionsButton>
                 padding: EdgeInsets.zero,
                 iconSize: 18,
                 splashRadius: 18,
-                tooltip: 'Quick actions',
+                tooltip: context.l10n.chatQuickActions,
                 icon: Icon(
                   LucideIcons.slidersHorizontal,
                   color: context.colors.muted,

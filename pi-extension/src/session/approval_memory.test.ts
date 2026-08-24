@@ -61,6 +61,7 @@ describe("pattern matching", () => {
   test("bash glob matches the command string", () => {
     expect(patternMatches("bash", "echo *", "echo hello")).toBe(true);
     expect(patternMatches("bash", "echo *", "echo hello world")).toBe(true);
+    expect(patternMatches("bash", "echo *", "echo rm -rf /")).toBe(true);
     expect(patternMatches("bash", "echo *", "printf hello")).toBe(false);
   });
 

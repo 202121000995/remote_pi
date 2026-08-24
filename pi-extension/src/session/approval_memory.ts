@@ -109,15 +109,28 @@ export function globMatch(pattern: string, value: string): boolean {
   return globToRegExp(p).test(v);
 }
 
+/** Command-string glob: `*` / `?` match any characters, including `/`. */
+export function commandGlobMatch(pattern: string, value: string): boolean {
+  if (!/[*?]/.test(pattern)) return pattern === value;
+  let out = "^";
+  for (const c of pattern) {
+    if (c === "*") out += ".*";
+    else if (c === "?") out += ".";
+    else if (/[.+^${}()|[\]\\]/.test(c)) out += `\\${c}`;
+    else out += c;
+  }
+  return new RegExp(`${out}$`).test(value);
+}
+
 /**
- * Bash: glob, or command prefix at a token boundary (`echo` matches
+ * Bash: command glob, or prefix at a token boundary (`echo` matches
  * `echo hello` but not `echohello`). Write/edit: path glob (or exact).
  */
 export function patternMatches(tool: string, pattern: string, subject: string): boolean {
   if (!pattern) return false;
   const name = toolKey(tool);
   if (name === "bash") {
-    if (globMatch(pattern, subject)) return true;
+    if (commandGlobMatch(pattern, subject)) return true;
     return subject === pattern || subject.startsWith(`${pattern} `);
   }
   return globMatch(pattern, subject);

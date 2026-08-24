@@ -2222,7 +2222,7 @@ const extension: ExtensionFactory = (pi: ExtensionAPI): void => {
 
     const decision = await toolApprovalGate.wait(toolCallId, {
       tool: toolName,
-      args: event.args,
+      args: event.input,
     });
     if (decision === "allow") return;
 

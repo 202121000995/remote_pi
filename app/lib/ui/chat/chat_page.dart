@@ -2,6 +2,7 @@ import 'package:app/data/preferences/preferences.dart';
 import 'package:app/domain/session_state.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/protocol/protocol.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/chat/quick_actions/widgets/quick_actions_sheet.dart';
 import 'package:app/ui/chat/attachment/states/attachment_state.dart';
@@ -154,7 +155,7 @@ class ChatPage extends StatelessWidget {
           if (showBack)
             IconButton(
               icon: Icon(LucideIcons.chevronLeft, size: 18, color: colors.text),
-              tooltip: 'Back',
+              tooltip: context.l10n.commonBack,
               onPressed: () =>
                   context.canPop() ? context.pop() : context.go('/home'),
             )
@@ -203,13 +204,14 @@ class ChatPage extends StatelessWidget {
                             : isOnline
                             ? colors.success
                             : colors.muted;
+                        final l10n = context.l10n;
                         final label = isWorking
-                            ? 'working…'
+                            ? l10n.chatWorking
                             : isReconnecting
-                            ? 'reconnecting…'
+                            ? l10n.chatReconnecting
                             : isOnline
-                            ? 'online'
-                            : 'offline';
+                            ? l10n.chatOnline
+                            : l10n.chatOffline;
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -247,7 +249,7 @@ class ChatPage extends StatelessWidget {
           // mount for the connection) and no-op in the unlikely pre-load tap.
           IconButton(
             icon: Icon(LucideIcons.info, size: 18, color: colors.muted2),
-            tooltip: 'Session info',
+            tooltip: context.l10n.chatSessionInfo,
             onPressed: () {
               final p = vm.activePeer;
               if (p != null) {
@@ -289,7 +291,7 @@ class ChatPage extends StatelessWidget {
             side: BorderSide(color: colors.border),
           ),
           title: Text(
-            'Session info',
+            dCtx.l10n.chatSessionInfo,
             style: TextStyle(
               fontFamily: kMonoFamily,
               fontSize: 15,
@@ -300,20 +302,23 @@ class ChatPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _InfoRow(label: 'Name', value: name),
-              _InfoRow(label: 'Path', value: room?.cwd ?? '—'),
-              _InfoRow(label: 'Owner', value: owner),
+              _InfoRow(label: dCtx.l10n.chatInfoName, value: name),
+              _InfoRow(label: dCtx.l10n.chatInfoPath, value: room?.cwd ?? '—'),
+              _InfoRow(label: dCtx.l10n.chatInfoOwner, value: owner),
               if (model != null && model.isNotEmpty)
-                _InfoRow(label: 'Model', value: model),
-              _InfoRow(label: 'Room', value: room?.roomId ?? '—'),
-              _InfoRow(label: 'Paired', value: paired),
+                _InfoRow(label: dCtx.l10n.chatInfoModel, value: model),
+              _InfoRow(
+                label: dCtx.l10n.chatInfoRoom,
+                value: room?.roomId ?? '—',
+              ),
+              _InfoRow(label: dCtx.l10n.chatInfoPaired, value: paired),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dCtx).pop(),
               child: Text(
-                'Close',
+                dCtx.l10n.commonClose,
                 style: TextStyle(fontFamily: kMonoFamily, color: colors.accent),
               ),
             ),
@@ -372,18 +377,18 @@ class ChatPage extends StatelessWidget {
       // user was here). The chat is not the place to pair — render
       // a minimal empty state without an action. User navigates back
       // and uses Home / Settings → pairing.
-      ChatNoPeer() => const _EmptyState(
+      ChatNoPeer() => _EmptyState(
         icon: LucideIcons.messageCircle,
-        message: 'No active device',
+        message: context.l10n.chatNoActiveDevice,
       ),
-      ChatConnecting() => const _EmptyState(
+      ChatConnecting() => _EmptyState(
         icon: LucideIcons.refreshCw,
-        message: 'Connecting…',
+        message: context.l10n.chatConnecting,
       ),
       ChatFatalError(:final message) => _EmptyState(
         icon: LucideIcons.circleAlert,
         message: message,
-        actionLabel: 'Re-pair',
+        actionLabel: context.l10n.chatRePair,
         onAction: () => context.go('/pair'),
       ),
       ChatReady(:final messages, :final streaming) => () {
@@ -394,9 +399,9 @@ class ChatPage extends StatelessWidget {
         // here"), shown whenever there's nothing to render — including while
         // reconnecting (the reconnect handshake never swaps the body).
         if (visible.isEmpty && streaming == null) {
-          return const _EmptyState(
+          return _EmptyState(
             icon: LucideIcons.terminal,
-            message: 'Nothing here',
+            message: context.l10n.chatNothingHere,
           );
         }
         return _MessageList(
@@ -499,21 +504,19 @@ class ChatPage extends StatelessWidget {
       case AttachHint.cameraPermissionDenied:
         messenger.showSnackBar(
           SnackBar(
-            content: const Text(
-              'Camera access is off — enable it in Settings to attach a photo.',
-            ),
+            content: Text(messenger.context.l10n.chatCameraPermission),
             duration: const Duration(seconds: 5),
             behavior: SnackBarBehavior.floating,
             action: SnackBarAction(
-              label: 'Settings',
+              label: messenger.context.l10n.commonSettings,
               onPressed: AppSettings.openAppSettings,
             ),
           ),
         );
       case AttachHint.pickFailed:
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text("Couldn't attach that image."),
+          SnackBar(
+            content: Text(messenger.context.l10n.chatAttachFailed),
             duration: Duration(seconds: 3),
             behavior: SnackBarBehavior.floating,
           ),
@@ -530,8 +533,8 @@ class ChatPage extends StatelessWidget {
     switch (hint) {
       case VoiceHint.holdToTalk:
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('Hold the mic to talk'),
+          SnackBar(
+            content: Text(messenger.context.l10n.chatHoldMic),
             duration: Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),
@@ -539,13 +542,11 @@ class ChatPage extends StatelessWidget {
       case VoiceHint.permissionDenied:
         messenger.showSnackBar(
           SnackBar(
-            content: const Text(
-              'Microphone access is off — enable it in Settings to dictate.',
-            ),
+            content: Text(messenger.context.l10n.chatMicPermission),
             duration: const Duration(seconds: 5),
             behavior: SnackBarBehavior.floating,
             action: SnackBarAction(
-              label: 'Settings',
+              label: messenger.context.l10n.commonSettings,
               onPressed: AppSettings.openAppSettings,
             ),
           ),
@@ -670,10 +671,10 @@ class _RevokedBanner extends StatelessWidget {
         children: [
           const Icon(LucideIcons.unlink, color: Colors.white, size: 15),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Pairing revoked by Mac — re-pair to continue',
-              style: TextStyle(
+              context.l10n.chatPairingRevoked,
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
@@ -682,9 +683,9 @@ class _RevokedBanner extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onRePair,
-            child: const Text(
-              'Re-pair',
-              style: TextStyle(
+            child: Text(
+              context.l10n.chatRePair,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

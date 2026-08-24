@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/pairing/states/pairing_state.dart';
 import 'package:app/ui/pairing/viewmodels/pairing_viewmodel.dart';
@@ -82,7 +83,7 @@ class _PairStepState extends State<PairStep> {
         children: [
           const SizedBox(height: 24),
           Text(
-            'Connect to your device',
+            context.l10n.onboardingConnectDevice,
             style: TextStyle(
               fontFamily: kMonoFamily,
               fontSize: 16,
@@ -92,9 +93,12 @@ class _PairStepState extends State<PairStep> {
           ),
           const SizedBox(height: 12),
           Text(
-            'On your computer (Mac, Linux, or Windows), open Pi and run:',
+            context.l10n.onboardingPairInstructions,
             style: TextStyle(
-                fontFamily: kMonoFamily, fontSize: 11, color: colors.muted),
+              fontFamily: kMonoFamily,
+              fontSize: 11,
+              color: colors.muted,
+            ),
           ),
           const SizedBox(height: 6),
           Container(
@@ -115,9 +119,12 @@ class _PairStepState extends State<PairStep> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Scan the QR code that appears:',
+            context.l10n.onboardingScanQrHint,
             style: TextStyle(
-                fontFamily: kMonoFamily, fontSize: 11, color: colors.muted),
+              fontFamily: kMonoFamily,
+              fontSize: 11,
+              color: colors.muted,
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -131,10 +138,13 @@ class _PairStepState extends State<PairStep> {
           if (state is PairingScanning || state is PairingIdle)
             TextButton.icon(
               onPressed: () => _openPasteSheet(vm),
-              icon: Icon(LucideIcons.clipboardPaste,
-                  size: 16, color: colors.accent),
+              icon: Icon(
+                LucideIcons.clipboardPaste,
+                size: 16,
+                color: colors.accent,
+              ),
               label: Text(
-                "Can't scan? Paste code instead",
+                context.l10n.onboardingCantScan,
                 style: TextStyle(
                   fontFamily: kMonoFamily,
                   fontSize: 12,
@@ -162,7 +172,7 @@ class _PairStepState extends State<PairStep> {
                   ),
                 ),
                 child: Text(
-                  'Back',
+                  context.l10n.commonBack,
                   style: TextStyle(fontFamily: kMonoFamily, fontSize: 13),
                 ),
               ),
@@ -177,7 +187,7 @@ class _PairStepState extends State<PairStep> {
                   ),
                 ),
                 child: Text(
-                  'Scan later',
+                  context.l10n.onboardingScanLater,
                   style: TextStyle(
                     fontFamily: kMonoFamily,
                     fontSize: 13,
@@ -213,14 +223,14 @@ class _PairStepState extends State<PairStep> {
     if (state is PairingConnecting) {
       return _StatusOverlay(
         icon: LucideIcons.refreshCw,
-        message: 'Pairing…',
+        message: context.l10n.onboardingPairing,
       );
     }
     if (state is PairingError) {
       return _StatusOverlay(
         icon: LucideIcons.circleAlert,
         message: state.message,
-        actionLabel: state.canRetry ? 'Try again' : null,
+        actionLabel: state.canRetry ? context.l10n.commonTryAgain : null,
         onAction: state.canRetry
             ? () {
                 _scannerActive = true;
@@ -233,7 +243,7 @@ class _PairStepState extends State<PairStep> {
     if (state is PairingPaired) {
       return _StatusOverlay(
         icon: LucideIcons.circleCheck,
-        message: 'Paired!',
+        message: context.l10n.onboardingPaired,
       );
     }
     return const SizedBox.shrink();
@@ -269,7 +279,10 @@ class _StatusOverlay extends StatelessWidget {
                 message,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontFamily: kMonoFamily, fontSize: 12, color: colors.text),
+                  fontFamily: kMonoFamily,
+                  fontSize: 12,
+                  color: colors.text,
+                ),
               ),
             ),
             if (actionLabel != null && onAction != null) ...[
@@ -282,8 +295,7 @@ class _StatusOverlay extends StatelessWidget {
                 ),
                 child: Text(
                   actionLabel!,
-                  style:
-                      TextStyle(fontFamily: kMonoFamily, fontSize: 12),
+                  style: TextStyle(fontFamily: kMonoFamily, fontSize: 12),
                 ),
               ),
             ],

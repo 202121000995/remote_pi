@@ -3,6 +3,7 @@
 
 import 'dart:math' as math;
 
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/chat/voice/widgets/recording_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,14 +75,14 @@ void main() {
       host(level: 0.3, elapsed: const Duration(seconds: 2)),
     );
     await tester.pump();
-    expect(find.text('slide to cancel'), findsOneWidget);
-    expect(find.text('release to cancel'), findsNothing);
+    expect(find.text(appL10n.chatSlideToCancel), findsOneWidget);
+    expect(find.text(appL10n.chatReleaseToCancel), findsNothing);
 
     await tester.pumpWidget(
       host(level: 0.3, elapsed: const Duration(seconds: 2), cancelArmed: true),
     );
     await tester.pump();
-    expect(find.text('release to cancel'), findsOneWidget);
-    expect(find.text('slide to cancel'), findsNothing);
+    expect(find.text(appL10n.chatReleaseToCancel), findsOneWidget);
+    expect(find.text(appL10n.chatSlideToCancel), findsNothing);
   });
 }

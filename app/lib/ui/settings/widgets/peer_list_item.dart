@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
@@ -48,13 +49,13 @@ class PeerListItem extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         color: Colors.red.shade900,
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.trash2, color: Colors.white, size: 18),
-            SizedBox(width: 6),
+            const Icon(LucideIcons.trash2, color: Colors.white, size: 18),
+            const SizedBox(width: 6),
             Text(
-              'Revoke',
+              context.l10n.settingsRevoke,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 13,
@@ -90,10 +91,7 @@ class PeerListItem extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       peer.sessionName,
-                      style: TextStyle(
-                        color: colors.muted2,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: colors.muted2, fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -119,7 +117,7 @@ class PeerListItem extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Edit nickname',
+              tooltip: context.l10n.settingsEditNickname,
               icon: const Icon(LucideIcons.pencil, size: 18),
               color: colors.muted2,
               onPressed: onEditNickname,

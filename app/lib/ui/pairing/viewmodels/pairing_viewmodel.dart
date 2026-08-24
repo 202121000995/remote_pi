@@ -6,6 +6,7 @@ import 'package:app/data/transport/peer_channel.dart';
 import 'package:app/data/transport/relay_config.dart';
 import 'package:app/pairing/owner_identity_bridge.dart';
 import 'package:app/pairing/pair_request_flow.dart' as pair_flow;
+import 'package:app/l10n/l10n.dart';
 import 'package:app/pairing/qr_scanner.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/ui/core/viewmodel/viewmodel.dart';
@@ -77,10 +78,9 @@ class PairingViewModel extends ViewModel<PairingState> {
           )
           .timeout(
             const Duration(seconds: 30),
-            onTimeout: () => throw const pair_flow.PairingError(
+            onTimeout: () => throw pair_flow.PairingError(
               code: 'pair_timeout',
-              message:
-                  'Timed out — make sure /remote-pi is running on your Mac',
+              message: appL10n.pairingTimeout,
             ),
           );
 
@@ -133,20 +133,20 @@ class PairingViewModel extends ViewModel<PairingState> {
   }
 
   static String _friendlyError(pair_flow.PairingError e) => switch (e.code) {
-    'token_expired' => 'QR expired — generate a new one on your Mac',
-    'token_consumed' => 'QR already used — generate a new one',
-    'token_unknown' => 'QR not recognized by Mac — re-run /remote-pi pair',
-    'pair_timeout' => 'Timed out — make sure /remote-pi is running on your Mac',
+    'token_expired' => appL10n.pairingQrExpired,
+    'token_consumed' => appL10n.pairingQrUsed,
+    'token_unknown' => appL10n.pairingQrUnknown,
+    'pair_timeout' => appL10n.pairingTimeout,
     _ => e.message.isEmpty ? e.code : e.message,
   };
 
   static String _deviceName() {
     try {
       if (Platform.isIOS) return 'iPhone';
-      if (Platform.isAndroid) return 'Android device';
-      return 'Mobile';
+      if (Platform.isAndroid) return appL10n.pairingAndroidDevice;
+      return appL10n.pairingMobileDevice;
     } catch (_) {
-      return 'Mobile';
+      return appL10n.pairingMobileDevice;
     }
   }
 }

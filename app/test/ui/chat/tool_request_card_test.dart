@@ -1,4 +1,5 @@
 import 'package:app/domain/session_state.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/protocol/protocol.dart';
 import 'package:app/ui/chat/widgets/tool_request_card.dart';
 import 'package:app/ui/core/themes/themes.dart';
@@ -68,44 +69,47 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: _bashTool)));
-      expect(find.text('RUNNING'), findsOneWidget);
-      expect(find.text('Allow'), findsNothing);
-      expect(find.text('Deny'), findsNothing);
+      expect(find.text(appL10n.toolRunning), findsOneWidget);
+      expect(find.text(appL10n.toolAllow), findsNothing);
+      expect(find.text(appL10n.toolDeny), findsNothing);
       expect(find.textContaining('60s'), findsNothing);
     });
 
-    testWidgets('pending bash with onDecide shows Allow/Deny and sends decisions', (
+    testWidgets(
+      'pending bash with onDecide shows Allow/Deny and sends decisions',
+      (tester) async {
+        String? decidedId;
+        ApproveDecision? decided;
+        await tester.pumpWidget(
+          _wrap(
+            ToolRequestCard(
+              tool: _bashTool,
+              onDecide: (id, decision) {
+                decidedId = id;
+                decided = decision;
+              },
+            ),
+          ),
+        );
+        expect(find.text(appL10n.toolAwaiting), findsOneWidget);
+        expect(find.text(appL10n.toolWaitingApproval), findsOneWidget);
+        expect(find.text(appL10n.toolAllow), findsOneWidget);
+        expect(find.text(appL10n.toolDeny), findsOneWidget);
+
+        await tester.tap(find.text(appL10n.toolAllow));
+        await tester.pump();
+        expect(decidedId, 'tc1');
+        expect(decided, ApproveDecision.allow);
+
+        await tester.tap(find.text(appL10n.toolDeny));
+        await tester.pump();
+        expect(decided, ApproveDecision.deny);
+      },
+    );
+
+    testWidgets('pending read-only tool never shows Allow/Deny', (
       tester,
     ) async {
-      String? decidedId;
-      ApproveDecision? decided;
-      await tester.pumpWidget(
-        _wrap(
-          ToolRequestCard(
-            tool: _bashTool,
-            onDecide: (id, decision) {
-              decidedId = id;
-              decided = decision;
-            },
-          ),
-        ),
-      );
-      expect(find.text('AWAITING'), findsOneWidget);
-      expect(find.text('Waiting for approval…'), findsOneWidget);
-      expect(find.text('Allow'), findsOneWidget);
-      expect(find.text('Deny'), findsOneWidget);
-
-      await tester.tap(find.text('Allow'));
-      await tester.pump();
-      expect(decidedId, 'tc1');
-      expect(decided, ApproveDecision.allow);
-
-      await tester.tap(find.text('Deny'));
-      await tester.pump();
-      expect(decided, ApproveDecision.deny);
-    });
-
-    testWidgets('pending read-only tool never shows Allow/Deny', (tester) async {
       const read = ToolEvent(
         id: 'tc-read',
         toolCallId: 'tc-read',
@@ -114,16 +118,11 @@ void main() {
       );
       var called = false;
       await tester.pumpWidget(
-        _wrap(
-          ToolRequestCard(
-            tool: read,
-            onDecide: (_, _) => called = true,
-          ),
-        ),
+        _wrap(ToolRequestCard(tool: read, onDecide: (_, _) => called = true)),
       );
-      expect(find.text('RUNNING'), findsOneWidget);
-      expect(find.text('Allow'), findsNothing);
-      expect(find.text('Deny'), findsNothing);
+      expect(find.text(appL10n.toolRunning), findsOneWidget);
+      expect(find.text(appL10n.toolAllow), findsNothing);
+      expect(find.text(appL10n.toolDeny), findsNothing);
       expect(called, isFalse);
     });
 
@@ -136,8 +135,8 @@ void main() {
         status: ToolEventStatus.completed,
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: done)));
-      expect(find.text('DONE'), findsOneWidget);
-      expect(find.textContaining('Done'), findsAny);
+      expect(find.text(appL10n.toolDone), findsOneWidget);
+      expect(find.textContaining(appL10n.toolOutcomeDone), findsAny);
     });
 
     testWidgets('denied state shows DENIED label', (tester) async {
@@ -150,7 +149,7 @@ void main() {
         error: 'user denied',
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: denied)));
-      expect(find.text('DENIED'), findsOneWidget);
+      expect(find.text(appL10n.toolDenied), findsOneWidget);
     });
 
     testWidgets('allowed state shows RUNNING (still in flight)', (
@@ -164,8 +163,8 @@ void main() {
         status: ToolEventStatus.allowed,
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: allowed)));
-      expect(find.text('RUNNING'), findsOneWidget);
-      expect(find.text('Allow'), findsNothing);
+      expect(find.text(appL10n.toolRunning), findsOneWidget);
+      expect(find.text(appL10n.toolAllow), findsNothing);
     });
 
     // Plan/32 — the card is colored by status: running blue, done green,
@@ -183,7 +182,10 @@ void main() {
         status: ToolEventStatus.completed,
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: done)));
-      expect(outcomeColor(tester, '✓ Done'), AppColors.dark.success);
+      expect(
+        outcomeColor(tester, appL10n.toolOutcomeDone),
+        AppColors.dark.success,
+      );
     });
 
     testWidgets('failed → red "✗ {error}" + FAILED label', (tester) async {
@@ -196,7 +198,7 @@ void main() {
         error: 'command failed: exit 1',
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: failed)));
-      expect(find.text('FAILED'), findsOneWidget);
+      expect(find.text(appL10n.toolFailed), findsOneWidget);
       expect(
         outcomeColor(tester, '✗ command failed: exit 1'),
         AppColors.dark.error,
@@ -206,7 +208,10 @@ void main() {
     testWidgets('running → blue "⏳ Running…"', (tester) async {
       // pending defaults
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: _bashTool)));
-      expect(outcomeColor(tester, '⏳ Running…'), AppColors.dark.accent);
+      expect(
+        outcomeColor(tester, appL10n.toolRunningEllipsis),
+        AppColors.dark.accent,
+      );
     });
   });
 }

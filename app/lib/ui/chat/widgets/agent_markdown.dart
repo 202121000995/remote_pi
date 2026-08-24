@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,10 +51,14 @@ class AgentMarkdown extends StatelessWidget {
     try {
       final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!ok) {
-        messenger?.showSnackBar(SnackBar(content: Text("Couldn't open $url")));
+        messenger?.showSnackBar(
+          SnackBar(content: Text(appL10n.chatCouldntOpenUrl(url))),
+        );
       }
     } catch (_) {
-      messenger?.showSnackBar(SnackBar(content: Text("Couldn't open $url")));
+      messenger?.showSnackBar(
+        SnackBar(content: Text(appL10n.chatCouldntOpenUrl(url))),
+      );
     }
   }
 }
@@ -85,7 +90,7 @@ class _CodeBlock extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    language.isEmpty ? 'code' : language,
+                    language.isEmpty ? context.l10n.chatCode : language,
                     style: TextStyle(
                       fontFamily: kMonoFamily,
                       fontSize: 10,
@@ -150,7 +155,7 @@ class _CopyButtonState extends State<_CopyButton> {
       visualDensity: VisualDensity.compact,
       iconSize: 15,
       splashRadius: 16,
-      tooltip: 'Copy code',
+      tooltip: context.l10n.chatCopyCode,
       onPressed: _copy,
       icon: Icon(
         _copied ? LucideIcons.check : LucideIcons.copy,

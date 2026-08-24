@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,8 +46,7 @@ class _OnSubmitScope extends InheritedWidget {
   const _OnSubmitScope({required this.onSubmit, required super.child});
 
   static void Function(String raw) of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<_OnSubmitScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<_OnSubmitScope>();
     assert(
       scope != null,
       '_PasteQrSheetBody must be wrapped in a _OnSubmitScope (use showPasteQrSheet).',
@@ -130,7 +130,7 @@ class _PasteQrSheetBodyState extends State<_PasteQrSheetBody> {
               ),
             ),
             Text(
-              'Paste pairing code',
+              context.l10n.pairingPasteTitle,
               style: TextStyle(
                 fontFamily: kMonoFamily,
                 fontSize: 15,
@@ -140,8 +140,7 @@ class _PasteQrSheetBodyState extends State<_PasteQrSheetBody> {
             ),
             const SizedBox(height: 6),
             Text(
-              "Can't scan the QR? Paste the text from your Mac terminal "
-              "below. It starts with remotepi://pair?…",
+              context.l10n.pairingPasteBody,
               style: TextStyle(
                 fontFamily: kMonoFamily,
                 fontSize: 11,
@@ -166,8 +165,10 @@ class _PasteQrSheetBodyState extends State<_PasteQrSheetBody> {
               decoration: InputDecoration(
                 isDense: true,
                 hintText: 'remotepi://pair?t=…',
-                hintStyle:
-                    TextStyle(fontFamily: kMonoFamily, color: colors.muted),
+                hintStyle: TextStyle(
+                  fontFamily: kMonoFamily,
+                  color: colors.muted,
+                ),
                 filled: true,
                 fillColor: colors.surface,
                 contentPadding: const EdgeInsets.symmetric(
@@ -194,7 +195,7 @@ class _PasteQrSheetBodyState extends State<_PasteQrSheetBody> {
                       color: colors.accent,
                     ),
                     label: Text(
-                      'Paste from clipboard',
+                      context.l10n.pairingPasteFromClipboard,
                       style: TextStyle(
                         fontFamily: kMonoFamily,
                         fontSize: 12,
@@ -224,9 +225,9 @@ class _PasteQrSheetBodyState extends State<_PasteQrSheetBody> {
                   borderRadius: BorderRadius.all(Radius.circular(6)),
                 ),
               ),
-              child: const Text(
-                'Pair',
-                style: TextStyle(
+              child: Text(
+                context.l10n.commonPair,
+                style: const TextStyle(
                   fontFamily: kMonoFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

@@ -8,6 +8,7 @@ import 'package:app/pairing/owner_identity_bridge.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/routing/adaptive.dart';
 import 'package:app/routing/app_router.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -94,7 +95,10 @@ class _RemotePiAppState extends State<RemotePiApp> with WidgetsBindingObserver {
       // [Preferences] → this Consumer rebuilds → MaterialApp swaps theme.
       child: Consumer<Preferences>(
         builder: (context, prefs, _) => MaterialApp.router(
-          title: 'Remote Pi',
+          title: appL10n.appTitle,
+          locale: kAppLocale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
           theme: buildLightTheme(),
           darkTheme: buildDarkTheme(),
           themeMode: prefs.themeMode,

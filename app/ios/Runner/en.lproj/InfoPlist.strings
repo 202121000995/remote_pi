@@ -1,0 +1,6 @@
+NSCameraUsageDescription = "Camera is used to scan the QR code shown on your Mac terminal, and to take a photo to attach to a message.";
+NSMicrophoneUsageDescription = "Remote Pi uses the microphone to dictate messages by voice. Audio is processed on your device and is never sent to any server.";
+NSSpeechRecognitionUsageDescription = "Speech recognition turns your dictated voice into text on your device. Audio is processed on-device and is never sent to any server.";
+NSLocalNetworkUsageDescription = "Remote Pi connects to a relay on your local network to communicate with your Mac.";
+CFBundleDisplayName = "Remote Pi";
+CFBundleName = "Remote Pi";

@@ -2,6 +2,7 @@
 // and the reclaimed token count (distinct from user/assistant bubbles).
 
 import 'package:app/domain/session_state.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/chat/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,18 +24,15 @@ void main() {
       ),
     );
 
-    expect(find.text('Context compacted'), findsOneWidget);
+    expect(find.text(appL10n.chatContextCompacted), findsOneWidget);
     expect(find.text('Recapped the long thread'), findsOneWidget);
-    expect(find.text('~12000 tokens'), findsOneWidget);
+    expect(find.text(appL10n.chatTokensApprox(12000)), findsOneWidget);
   });
 
   testWidgets('omits the token line when tokensBefore is null', (tester) async {
-    await pump(
-      tester,
-      const CompactionMsg(id: 'c2', summary: 'done'),
-    );
+    await pump(tester, const CompactionMsg(id: 'c2', summary: 'done'));
 
-    expect(find.text('Context compacted'), findsOneWidget);
+    expect(find.text(appL10n.chatContextCompacted), findsOneWidget);
     expect(find.text('done'), findsOneWidget);
     expect(find.textContaining('tokens'), findsNothing);
   });

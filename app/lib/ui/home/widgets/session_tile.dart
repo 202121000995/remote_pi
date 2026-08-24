@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/pairing/storage.dart';
 import 'package:app/protocol/protocol.dart';
 import 'package:app/ui/core/themes/themes.dart';
@@ -10,22 +11,27 @@ import 'package:flutter/material.dart';
 /// no dot = relay hasn't reported yet.
 class SessionTile extends StatelessWidget {
   final PeerRecord peer;
+
   /// `true` when the room is announced live on the relay AND the
   /// relay itself is reachable. Drives the green dot.
   final bool isLive;
+
   /// `true` when the WS to the relay is currently retrying / down.
   /// Overrides `isLive` and renders an amber "reconnecting" dot —
   /// the app has no fresh signal on any room right now.
   final bool isReconnecting;
+
   /// Plan-18 follow-up — `true` when the agent in this room is
   /// currently producing a response. Highest-priority colour (blue).
   final bool isWorking;
   final RoomInfo? room;
   final VoidCallback onOpen;
+
   /// Plan/tablet — `true` when this is the session shown in the tablet's
   /// detail pane. Paints the accent left-bar + faint fill from the mock.
   /// Always `false` on phone (no persistent selection there).
   final bool isSelected;
+
   /// Plan-17 follow-up — long-press context menu. Caller wires the
   /// dialog (rename + delete-offline). Optional; when null the tile
   /// only responds to tap.
@@ -53,7 +59,9 @@ class SessionTile extends StatelessWidget {
         onLongPress: onLongPress,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: isSelected ? colors.accent.withValues(alpha: 0.06) : colors.bg,
+            color: isSelected
+                ? colors.accent.withValues(alpha: 0.06)
+                : colors.bg,
             border: Border(
               left: BorderSide(
                 color: isSelected ? colors.accent : Colors.transparent,
@@ -122,10 +130,10 @@ class _PresenceDot extends StatelessWidget {
     final Color color = isWorking
         ? colors.working
         : isReconnecting
-            ? colors.warning
-            : isLive
-                ? colors.success
-                : colors.muted;
+        ? colors.warning
+        : isLive
+        ? colors.success
+        : colors.muted;
     return Container(
       width: 10,
       height: 10,
@@ -159,8 +167,9 @@ class _TitleBlock extends StatelessWidget {
         title = peer.sessionName;
       }
     } else {
-      title =
-          peer.nickname?.isNotEmpty == true ? peer.nickname! : peer.sessionName;
+      title = peer.nickname?.isNotEmpty == true
+          ? peer.nickname!
+          : peer.sessionName;
     }
 
     return Column(
@@ -181,22 +190,26 @@ class _TitleBlock extends StatelessWidget {
         // Subtitle = the Pi-extension's model (when surfaced via
         // `room_announced` / `room_meta_updated`), else the legacy
         // "Last paired" timestamp so the row keeps a stable height.
-        Builder(builder: (_) {
-          final model = room?.model;
-          final hasModel = model != null && model.isNotEmpty;
-          return Text(
-            hasModel
-                ? _truncateModel(model)
-                : 'Last paired: ${_relativeTime(peer.pairedAt)}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: hasModel ? colors.accent : colors.muted,
-              fontSize: 12,
-              fontFamily: kMonoFamily,
-            ),
-          );
-        }),
+        Builder(
+          builder: (_) {
+            final model = room?.model;
+            final hasModel = model != null && model.isNotEmpty;
+            return Text(
+              hasModel
+                  ? _truncateModel(model)
+                  : context.l10n.homeLastPaired(
+                      _relativeTime(context, peer.pairedAt),
+                    ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: hasModel ? colors.accent : colors.muted,
+                fontSize: 12,
+                fontFamily: kMonoFamily,
+              ),
+            );
+          },
+        ),
       ],
     );
   }
@@ -241,14 +254,15 @@ String _initial(String name) {
   return trimmed.characters.first.toUpperCase();
 }
 
-String _relativeTime(String isoUtc) {
+String _relativeTime(BuildContext context, String isoUtc) {
   final parsed = DateTime.tryParse(isoUtc);
   if (parsed == null) return isoUtc;
   final now = DateTime.now().toUtc();
   final diff = now.difference(parsed);
-  if (diff.inSeconds < 60) return 'just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-  if (diff.inHours < 24) return '${diff.inHours}h ago';
-  if (diff.inDays < 30) return '${diff.inDays}d ago';
+  final l10n = context.l10n;
+  if (diff.inSeconds < 60) return l10n.homeJustNow;
+  if (diff.inMinutes < 60) return l10n.homeMinutesAgo(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.homeHoursAgo(diff.inHours);
+  if (diff.inDays < 30) return l10n.homeDaysAgo(diff.inDays);
   return isoUtc.substring(0, 10);
 }

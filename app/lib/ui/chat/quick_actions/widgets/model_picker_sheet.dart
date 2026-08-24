@@ -1,5 +1,6 @@
 import 'package:app/data/actions/actions_repository.dart';
 import 'package:app/protocol/protocol.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/chat/quick_actions/viewmodels/quick_actions_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -101,8 +102,10 @@ class _ModelPickerBodyState extends State<_ModelPickerBody> {
                     if (snap.hasError) {
                       return _ErrorState(
                         message: snap.error is ActionFailure
-                            ? (snap.error as ActionFailure).message
-                            : 'Failed to load models',
+                            ? localizeActionError(
+                                (snap.error as ActionFailure).message,
+                              )
+                            : context.l10n.chatFailedToLoadModels,
                         onRetry: _refresh,
                       );
                     }
@@ -113,8 +116,7 @@ class _ModelPickerBodyState extends State<_ModelPickerBody> {
                     return _ProviderTabs(
                       catalogue: cat,
                       selectedProvider: _providerFilter,
-                      onProviderTap: (p) =>
-                          setState(() => _providerFilter = p),
+                      onProviderTap: (p) => setState(() => _providerFilter = p),
                       onModelPick: _onPick,
                     );
                   },
@@ -158,12 +160,12 @@ class _Header extends StatelessWidget {
           IconButton(
             icon: Icon(LucideIcons.arrowLeft, size: 18, color: colors.muted),
             onPressed: () => Navigator.of(context).pop(),
-            tooltip: 'Back',
+            tooltip: context.l10n.commonBack,
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              'Choose a model',
+              context.l10n.chatChooseModel,
               style: TextStyle(
                 fontFamily: kMonoFamily,
                 fontSize: 13,
@@ -176,7 +178,7 @@ class _Header extends StatelessWidget {
             key: const Key('model-picker-refresh'),
             icon: Icon(LucideIcons.refreshCw, size: 18, color: colors.muted),
             onPressed: onRefresh,
-            tooltip: 'Refresh',
+            tooltip: context.l10n.commonRefresh,
           ),
         ],
       ),
@@ -201,13 +203,12 @@ class _ProviderTabs extends StatelessWidget {
     final colors = context.colors;
     final providers = <String>{
       for (final m in catalogue.models) m.provider,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     final filtered = selectedProvider == null
         ? catalogue.models
         : catalogue.models
-            .where((m) => m.provider == selectedProvider)
-            .toList();
+              .where((m) => m.provider == selectedProvider)
+              .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,7 +219,7 @@ class _ProviderTabs extends StatelessWidget {
             child: Row(
               children: [
                 _Chip(
-                  label: 'all',
+                  label: context.l10n.chatProviderAll,
                   selected: selectedProvider == null,
                   onTap: () => onProviderTap(null),
                 ),
@@ -243,7 +244,8 @@ class _ProviderTabs extends StatelessWidget {
                 Divider(color: colors.border, height: 1, thickness: 1),
             itemBuilder: (_, i) {
               final m = filtered[i];
-              final isCurrent = catalogue.current?.id == m.id &&
+              final isCurrent =
+                  catalogue.current?.id == m.id &&
                   catalogue.current?.provider == m.provider;
               return _ModelTile(
                 model: m,
@@ -276,9 +278,7 @@ class _Chip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: selected ? colors.accent : colors.border,
-          ),
+          border: Border.all(color: selected ? colors.accent : colors.border),
           color: selected ? colors.accent.withValues(alpha: 0.12) : colors.bg,
           borderRadius: BorderRadius.circular(4),
         ),
@@ -333,7 +333,7 @@ class _ModelTile extends StatelessWidget {
                       ),
                       if (model.reasoning) ...[
                         const SizedBox(width: 6),
-                        const _Badge(label: 'reasoning'),
+                        _Badge(label: context.l10n.chatReasoning),
                       ],
                     ],
                   ),
@@ -417,7 +417,7 @@ class _EmptyState extends StatelessWidget {
       height: 120,
       child: Center(
         child: Text(
-          'No models available',
+          context.l10n.chatNoModels,
           style: TextStyle(
             fontFamily: kMonoFamily,
             fontSize: 12,
@@ -458,9 +458,9 @@ class _ErrorState extends StatelessWidget {
               foregroundColor: colors.accent,
               side: BorderSide(color: colors.border),
             ),
-            child: const Text(
-              'Retry',
-              style: TextStyle(fontFamily: kMonoFamily, fontSize: 12),
+            child: Text(
+              context.l10n.commonRetry,
+              style: const TextStyle(fontFamily: kMonoFamily, fontSize: 12),
             ),
           ),
         ],

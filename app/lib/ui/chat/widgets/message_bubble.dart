@@ -1,6 +1,7 @@
 import 'package:app/domain/session_state.dart';
 import 'package:app/ui/chat/widgets/agent_markdown.dart';
 import 'package:app/ui/chat/widgets/image_bubble.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -79,7 +80,9 @@ class UserBubble extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        isSteering ? 'steering…' : 'sending…',
+                        isSteering
+                            ? context.l10n.chatSteering
+                            : context.l10n.chatSending,
                         style: typo.sansBody.copyWith(
                           color: colors.muted,
                           fontSize: 11,
@@ -93,7 +96,7 @@ class UserBubble extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'not delivered',
+                        context.l10n.chatNotDelivered,
                         style: typo.sansBody.copyWith(
                           color: colors.error,
                           fontSize: 11,
@@ -146,7 +149,7 @@ class CompactionBubble extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Context compacted',
+                      context.l10n.chatContextCompacted,
                       style: TextStyle(
                         fontFamily: kMonoFamily,
                         fontSize: 12,
@@ -157,7 +160,7 @@ class CompactionBubble extends StatelessWidget {
                   ),
                   if (tokens != null)
                     Text(
-                      '~$tokens tokens',
+                      context.l10n.chatTokensApprox(tokens),
                       style: TextStyle(
                         fontFamily: kMonoFamily,
                         fontSize: 11,

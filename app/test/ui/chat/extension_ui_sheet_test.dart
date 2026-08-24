@@ -3,6 +3,7 @@
 // ask_user modal (the protocol surface is covered by
 // test/protocol/extension_ui_test.dart).
 
+import 'package:app/l10n/l10n.dart';
 import 'package:app/protocol/protocol.dart';
 import 'package:app/ui/chat/widgets/extension_ui_sheet.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,8 @@ void main() {
     );
   }
 
-  Finder submitButton() => find.widgetWithText(FilledButton, 'Submit');
+  Finder submitButton() =>
+      find.widgetWithText(FilledButton, appL10n.commonSubmit);
 
   bool submitEnabled(WidgetTester tester) =>
       tester.widget<FilledButton>(submitButton()).onPressed != null;
@@ -179,7 +181,7 @@ void main() {
 
   testWidgets('required question renders the advisory chip', (tester) async {
     await pumpSheet(tester, request: _richRequest());
-    expect(find.text('required'), findsOneWidget);
+    expect(find.text(appL10n.chatRequired), findsOneWidget);
   });
 
   testWidgets('defensive degraded notify renders its message once', (

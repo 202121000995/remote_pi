@@ -1,0 +1,6 @@
+NSCameraUsageDescription = "用于扫描电脑终端上的二维码，以及拍照附加到消息。";
+NSMicrophoneUsageDescription = "Remote Pi 用麦克风语音输入。音频只在本机处理，不会发到任何服务器。";
+NSSpeechRecognitionUsageDescription = "语音识别在本机把你说的话转成文字。音频只在本机处理，不会发到任何服务器。";
+NSLocalNetworkUsageDescription = "Remote Pi 通过局域网中继和你的电脑通信。";
+CFBundleDisplayName = "Remote Pi";
+CFBundleName = "Remote Pi";

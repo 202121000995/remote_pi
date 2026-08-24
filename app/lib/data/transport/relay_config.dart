@@ -19,6 +19,7 @@
 // global, not per-peer.
 
 import 'package:app/data/preferences/preferences.dart';
+import 'package:app/l10n/l10n.dart';
 
 /// Public community relay. Hardcoded; not configurable at build time
 /// to keep the onboarding flow deterministic.
@@ -29,20 +30,15 @@ const String kDefaultRelayUrl = 'https://relay-rp1.jacobmoura.work';
 /// localization later. Empty input gets a more generic message; the
 /// ws/wss case is called out explicitly so the user understands the
 /// app does the conversion internally.
-const String kRelayUrlInvalidScheme =
-    'Use http:// or https:// (not ws:// or wss:// — the app converts '
-    'to WebSocket automatically).';
+String get kRelayUrlInvalidScheme => appL10n.relayUrlInvalidScheme;
 
-const String kRelayUrlInvalidGeneric =
-    'Enter a valid URL starting with https:// (or http:// for local '
-    'relays).';
+String get kRelayUrlInvalidGeneric => appL10n.relayUrlInvalidGeneric;
 
 /// Returns the effective relay URL the app should connect to.
 /// Falls back to [kDefaultRelayUrl] when no user override is set.
 /// Always returns an `http(s)://` URL — caller is responsible for
 /// applying [toWsRelayUrl] when opening a WebSocket.
-String resolveRelayUrl(Preferences prefs) =>
-    prefs.relayUrl ?? kDefaultRelayUrl;
+String resolveRelayUrl(Preferences prefs) => prefs.relayUrl ?? kDefaultRelayUrl;
 
 /// Translates the canonical HTTP-form relay URL into the WebSocket
 /// form expected by the underlying transport. `https://` → `wss://`,

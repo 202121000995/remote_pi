@@ -6,14 +6,14 @@
 	     to capture a photo to attach to a message. The photo library uses
 	     the system PHPicker (iOS 14+), which needs no library permission. -->
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is used to scan the QR code shown on your Mac terminal, and to take a photo to attach to a message.</string>
+	<string>用于扫描电脑终端上的二维码，以及拍照附加到消息。</string>
 	<!-- Plan 29 — voice input. The mic feeds on-device speech recognition
 	     (requiresOnDeviceRecognition); audio is transcribed locally and is
 	     never written to a file nor sent to any server. -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Remote Pi uses the microphone to dictate messages by voice. Audio is processed on your device and is never sent to any server.</string>
+	<string>Remote Pi 用麦克风语音输入。音频只在本机处理，不会发到任何服务器。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech recognition turns your dictated voice into text on your device. Audio is processed on-device and is never sent to any server.</string>
+	<string>语音识别在本机把你说的话转成文字。音频只在本机处理，不会发到任何服务器。</string>
 	<!-- Public relays must use TLS (https/wss). NSAllowsLocalNetworking permits
 	     cleartext (http/ws) only to local/private-network self-hosted relays,
 	     which is the supported use case. Arbitrary public cleartext is blocked,
@@ -25,7 +25,7 @@
 	</dict>
 	<!-- Required for iOS 14+ to connect to devices on the local network (LAN relay). -->
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Remote Pi connects to a relay on your local network to communicate with your Mac.</string>
+	<string>Remote Pi 通过局域网中继和你的电脑通信。</string>
 	<!-- App uses only standard TLS transport + Ed25519 signatures (digital
 	     signature is exempt). Qualifies for the standard export-compliance
 	     exemption; set to false so uploads don't require manual compliance
@@ -35,7 +35,12 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>zh</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh</string>
+		<string>en</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Remote Pi</string>
 	<key>CFBundleExecutable</key>

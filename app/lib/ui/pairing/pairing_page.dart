@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/pairing/states/pairing_state.dart';
 import 'package:app/ui/pairing/viewmodels/pairing_viewmodel.dart';
@@ -75,7 +76,7 @@ class _PairingPageState extends State<PairingPage> {
       backgroundColor: colors.bg,
       appBar: AppBar(
         backgroundColor: colors.bg,
-        title: const Text('Pair device'),
+        title: Text(context.l10n.pairingTitle),
       ),
       body: _buildBody(state, vm),
     );
@@ -136,10 +137,7 @@ class _PairingPageState extends State<PairingPage> {
               border: Border.all(color: colors.border),
             ),
             child: isConnecting
-                ? Center(
-                    child:
-                        CircularProgressIndicator(color: colors.accent),
-                  )
+                ? Center(child: CircularProgressIndicator(color: colors.accent))
                 : _CornerBrackets(),
           ),
         ),
@@ -150,8 +148,8 @@ class _PairingPageState extends State<PairingPage> {
           right: 0,
           child: Text(
             isConnecting
-                ? 'Connecting to $sessionName…'
-                : 'Point camera at the QR shown in your Mac terminal',
+                ? context.l10n.pairingConnectingTo(sessionName ?? '')
+                : context.l10n.pairingPointCamera,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
@@ -163,10 +161,13 @@ class _PairingPageState extends State<PairingPage> {
             right: 32,
             child: OutlinedButton.icon(
               onPressed: _openPasteSheet,
-              icon: Icon(LucideIcons.clipboardPaste,
-                  size: 16, color: colors.accent),
+              icon: Icon(
+                LucideIcons.clipboardPaste,
+                size: 16,
+                color: colors.accent,
+              ),
               label: Text(
-                "Can't scan? Paste code instead",
+                context.l10n.onboardingCantScan,
                 style: TextStyle(
                   color: colors.accent,
                   fontSize: 13,
@@ -268,11 +269,7 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              LucideIcons.circleAlert,
-              color: colors.error,
-              size: 48,
-            ),
+            Icon(LucideIcons.circleAlert, color: colors.error, size: 48),
             const SizedBox(height: 16),
             Text(
               message,
@@ -287,7 +284,7 @@ class _ErrorView extends StatelessWidget {
                   backgroundColor: colors.accent,
                   foregroundColor: colors.onAccent,
                 ),
-                child: const Text('Try again'),
+                child: Text(context.l10n.commonTryAgain),
               ),
             ],
           ],

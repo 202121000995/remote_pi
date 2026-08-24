@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/routing/adaptive.dart' show kMaxContentWidth;
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:app/ui/home/states/home_state.dart';
@@ -37,9 +38,24 @@ class HomeFilterTabs extends StatelessWidget {
         padding: const EdgeInsets.all(3),
         child: Row(
           children: [
-            _segment(context, HomeFilter.all, 'All', counts.all),
-            _segment(context, HomeFilter.online, 'Online', counts.online),
-            _segment(context, HomeFilter.offline, 'Offline', counts.offline),
+            _segment(
+              context,
+              HomeFilter.all,
+              context.l10n.homeFilterAll,
+              counts.all,
+            ),
+            _segment(
+              context,
+              HomeFilter.online,
+              context.l10n.homeFilterOnline,
+              counts.online,
+            ),
+            _segment(
+              context,
+              HomeFilter.offline,
+              context.l10n.homeFilterOffline,
+              counts.offline,
+            ),
           ],
         ),
       ),
@@ -113,19 +129,17 @@ class HomeFilterEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
     final (String title, String subtitle) = switch (filter) {
       HomeFilter.online => (
-        'No sessions online',
-        'Live sessions appear here when a paired Pi is active.',
+        l10n.homeNoSessionsOnline,
+        l10n.homeNoSessionsOnlineHint,
       ),
       HomeFilter.offline => (
-        'No offline sessions',
-        'Sessions you’ve seen before that aren’t live show up here.',
+        l10n.homeNoSessionsOffline,
+        l10n.homeNoSessionsOfflineHint,
       ),
-      HomeFilter.all => (
-        'Nothing here…',
-        'When a paired Pi opens a session, it shows up here.',
-      ),
+      HomeFilter.all => (l10n.homeNothingHere, l10n.homeNothingHereSubtitle),
     };
     return Center(
       child: ConstrainedBox(

@@ -1,5 +1,6 @@
 import 'package:app/domain/session_state.dart';
 import 'package:app/protocol/protocol.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 
@@ -78,7 +79,7 @@ class ToolRequestCard extends StatelessWidget {
             const SizedBox(height: 10),
             _buildCodeBlock(context),
             const SizedBox(height: 8),
-            _buildOutcome(color),
+            _buildOutcome(context, color),
             if (_canDecide) ...[
               const SizedBox(height: 12),
               _buildActions(context),
@@ -90,13 +91,15 @@ class ToolRequestCard extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, Color color) {
+    final l10n = context.l10n;
     final statusLabel = switch (tool.status) {
-      ToolEventStatus.pending => _canDecide ? 'AWAITING' : 'RUNNING',
-      ToolEventStatus.allowed => 'RUNNING',
-      ToolEventStatus.completed => 'DONE',
-      ToolEventStatus.failed => 'FAILED',
-      ToolEventStatus.denied => 'DENIED',
-      ToolEventStatus.expired => 'EXPIRED',
+      ToolEventStatus.pending =>
+        _canDecide ? l10n.toolAwaiting : l10n.toolRunning,
+      ToolEventStatus.allowed => l10n.toolRunning,
+      ToolEventStatus.completed => l10n.toolDone,
+      ToolEventStatus.failed => l10n.toolFailed,
+      ToolEventStatus.denied => l10n.toolDenied,
+      ToolEventStatus.expired => l10n.toolExpired,
     };
 
     return Row(
@@ -175,15 +178,20 @@ class ToolRequestCard extends StatelessWidget {
     );
   }
 
-  Widget _buildOutcome(Color color) {
+  Widget _buildOutcome(BuildContext context, Color color) {
+    final l10n = context.l10n;
     final text = switch (tool.status) {
       ToolEventStatus.pending =>
-        _canDecide ? 'Waiting for approval…' : '⏳ Running…',
-      ToolEventStatus.allowed => '⏳ Running…',
-      ToolEventStatus.completed => '✓ Done',
-      ToolEventStatus.failed => '✗ ${tool.error ?? "Failed"}',
-      ToolEventStatus.denied => '✗ ${tool.error ?? "Denied"}',
-      ToolEventStatus.expired => '✗ Expired',
+        _canDecide ? l10n.toolWaitingApproval : l10n.toolRunningEllipsis,
+      ToolEventStatus.allowed => l10n.toolRunningEllipsis,
+      ToolEventStatus.completed => l10n.toolOutcomeDone,
+      ToolEventStatus.failed => l10n.toolOutcomeFailed(
+        tool.error ?? l10n.toolFailed,
+      ),
+      ToolEventStatus.denied => l10n.toolOutcomeDenied(
+        tool.error ?? l10n.toolDenied,
+      ),
+      ToolEventStatus.expired => l10n.toolOutcomeExpired,
     };
     return Text(
       text,
@@ -206,7 +214,7 @@ class ToolRequestCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(9),
               ),
             ),
-            child: const Text('Deny'),
+            child: Text(context.l10n.toolDeny),
           ),
         ),
         const SizedBox(width: 8),
@@ -221,7 +229,7 @@ class ToolRequestCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(9),
               ),
             ),
-            child: const Text('Allow'),
+            child: Text(context.l10n.toolAllow),
           ),
         ),
       ],

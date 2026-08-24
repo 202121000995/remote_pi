@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:app/config/dependencies.dart';
 import 'package:app/pairing/owner_identity_bridge.dart';
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,14 +38,11 @@ class _SyncRequiredPageState extends State<SyncRequiredPage> {
   @override
   Widget build(BuildContext context) {
     final isIOS = Platform.isIOS;
-    final requirements = isIOS ? _iosRequirements : _androidRequirements;
-    final why = isIOS
-        ? 'Remote Pi keeps your Ed25519 owner key in iCloud Keychain so '
-              'you can switch iPhones or pair your iPad without scanning '
-              'a new QR.'
-        : 'Remote Pi keeps your Ed25519 owner key in Google Block Store '
-              'so you can restore it on a new device through Google '
-              'Backup without losing your paired Pis.';
+    final l10n = context.l10n;
+    final requirements = isIOS
+        ? _iosRequirements(l10n)
+        : _androidRequirements(l10n);
+    final why = isIOS ? l10n.syncWhyIos : l10n.syncWhyAndroid;
 
     final colors = context.colors;
     return Scaffold(
@@ -63,7 +61,7 @@ class _SyncRequiredPageState extends State<SyncRequiredPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Sync required',
+                l10n.syncRequired,
                 style: TextStyle(
                   fontFamily: kMonoFamily,
                   fontSize: 20,
@@ -83,7 +81,7 @@ class _SyncRequiredPageState extends State<SyncRequiredPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'To enable, on this device:',
+                l10n.syncToEnable,
                 style: TextStyle(
                   fontFamily: kMonoFamily,
                   fontSize: 11,
@@ -125,7 +123,7 @@ class _SyncRequiredPageState extends State<SyncRequiredPage> {
                         ),
                       )
                     : Text(
-                        'Check again',
+                        l10n.syncCheckAgain,
                         style: TextStyle(
                           fontFamily: kMonoFamily,
                           fontSize: 14,
@@ -149,33 +147,26 @@ class _Requirement {
   const _Requirement({required this.title, required this.path, this.note});
 }
 
-const _androidRequirements = <_Requirement>[
+List<_Requirement> _androidRequirements(AppLocalizations l10n) => [
   _Requirement(
-    title: 'Set up a screen lock',
-    path: 'Settings › Security › Screen lock',
-    note: 'PIN, pattern or biometrics — required by Block Store.',
+    title: l10n.syncAndroidLock,
+    path: l10n.syncAndroidLockPath,
+    note: l10n.syncAndroidLockNote,
   ),
-  _Requirement(
-    title: 'Turn on Google Backup',
-    path: 'Settings › System › Backup\n'
-        '(Samsung: Settings › Accounts and backup › Backup data)',
-  ),
-  _Requirement(
-    title: 'Sign in to a Google account',
-    path: 'Settings › Passwords & accounts › Add account › Google',
-  ),
+  _Requirement(title: l10n.syncAndroidBackup, path: l10n.syncAndroidBackupPath),
+  _Requirement(title: l10n.syncAndroidGoogle, path: l10n.syncAndroidGooglePath),
 ];
 
-const _iosRequirements = <_Requirement>[
+List<_Requirement> _iosRequirements(AppLocalizations l10n) => [
   _Requirement(
-    title: 'Sign in to iCloud',
-    path: 'Settings › [your name]',
-    note: 'If you see "Sign in to your iPhone" at the top, tap it.',
+    title: l10n.syncIosIcloud,
+    path: l10n.syncIosIcloudPath,
+    note: l10n.syncIosIcloudNote,
   ),
   _Requirement(
-    title: 'Turn on iCloud Keychain',
-    path: 'Settings › [your name] › iCloud › Passwords and Keychain',
-    note: 'Toggle "Sync this iPhone" on.',
+    title: l10n.syncIosKeychain,
+    path: l10n.syncIosKeychainPath,
+    note: l10n.syncIosKeychainNote,
   ),
 ];
 

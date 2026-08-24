@@ -1,3 +1,4 @@
+import 'package:app/l10n/l10n.dart';
 import 'package:app/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,8 @@ class NicknameSheetForTest extends StatelessWidget {
   const NicknameSheetForTest({super.key, this.defaultName});
 
   @override
-  Widget build(BuildContext context) => _NicknameSheet(defaultName: defaultName);
+  Widget build(BuildContext context) =>
+      _NicknameSheet(defaultName: defaultName);
 }
 
 class _NicknameSheet extends StatefulWidget {
@@ -107,7 +109,7 @@ class _NicknameSheetState extends State<_NicknameSheet> {
                 ),
               ),
               Text(
-                'Name this PC',
+                context.l10n.pairingNameThisPc,
                 style: TextStyle(
                   color: colors.text,
                   fontSize: 17,
@@ -116,7 +118,7 @@ class _NicknameSheetState extends State<_NicknameSheet> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Pick a label so this Mac is easy to spot in your list. You can change it later from the home screen.',
+                context.l10n.pairingNameThisPcHint,
                 style: TextStyle(color: colors.muted2, fontSize: 13),
               ),
               const SizedBox(height: 20),
@@ -149,7 +151,7 @@ class _NicknameSheetState extends State<_NicknameSheet> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
-                        'Skip',
+                        context.l10n.commonSkip,
                         style: TextStyle(color: colors.muted),
                       ),
                     ),
@@ -164,7 +166,7 @@ class _NicknameSheetState extends State<_NicknameSheet> {
                         foregroundColor: colors.onAccent,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Save'),
+                      child: Text(context.l10n.commonSave),
                     ),
                   ),
                 ],

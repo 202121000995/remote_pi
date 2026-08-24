@@ -237,6 +237,7 @@ const {
   _handleControl,
   _routeClientMessageFrom,
   _deliverMeshMessageToAgentForTest,
+  _resetToolApprovalGateForTest,
   CTRL_PREFIX,
 } = indexModule;
 const { acquireCwdLock } = await import("./session/cwd_lock.js");
@@ -2443,6 +2444,7 @@ describe("tool visibility", () => {
     );
     const stop = captureHandler("remote-pi stop");
     await stop("", makeMockCtx());
+    _resetToolApprovalGateForTest();
   });
 
   test("tool_execution_start → tool_request emitted via channel", async () => {
@@ -2601,7 +2603,7 @@ describe("tool visibility", () => {
     expect(relayRef.current).toBeNull();
   });
 
-  test("start → end pair emits tool_request then tool_result (no gate)", async () => {
+  test("start → end pair emits tool_request then tool_result (read auto-allow)", async () => {
     await _pairForTest("peer-pair");
 
     const onToolStart = captureEventHandler("tool_execution_start");
@@ -2701,6 +2703,222 @@ describe("tool visibility", () => {
       { role: "toolResult", toolCallId: "tc_w", isError: true, content: [{ type: "text", text: "ping: cannot resolve host" }], timestamp: 1 },
     ])[0] as { error?: string };
     expect(hist.error).toBe(w?.inner.error);
+  });
+});
+
+// ── tool approval gate (approve_tool on bash/write/edit) ──────────────────────
+
+function emitApproveTool(
+  peer: string,
+  toolCallId: string,
+  decision: "allow" | "deny",
+  id = `appr-${toolCallId}-${decision}`,
+): void {
+  relayRef.current!.emit("message", JSON.stringify({
+    peer,
+    ct: Buffer.from(JSON.stringify({
+      type: "approve_tool",
+      id,
+      tool_call_id: toolCallId,
+      decision,
+    })).toString("base64"),
+  }));
+}
+
+async function stillPending(promise: Promise<unknown>, ms = 25): Promise<boolean> {
+  const raced = await Promise.race([
+    promise.then(() => "settled" as const),
+    new Promise<"waiting">((resolve) => setTimeout(() => resolve("waiting"), ms)),
+  ]);
+  return raced === "waiting";
+}
+
+describe("tool approval gate", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    _knownPeers.length = 0;
+    _addedPeers.length = 0;
+    _removedPeers.length = 0;
+    _consumeCalls.length = 0;
+    _setRelayCalls.length = 0;
+    _savedRelayUrl = null;
+    _tokenStatus = "ok";
+    relayRef.current = null;
+    const qr = await import("./pairing/qr.js");
+    (qr.qrSession.consumeToken as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (token: string) => {
+        _consumeCalls.push(token);
+        return _tokenStatus;
+      },
+    );
+    const stop = captureHandler("remote-pi stop");
+    await stop("", makeMockCtx());
+    _resetToolApprovalGateForTest();
+  });
+
+  afterEach(() => {
+    _resetToolApprovalGateForTest();
+  });
+
+  test("read auto-allows immediately (no approve_tool)", async () => {
+    await _pairForTest("peer-gate-read");
+    const onToolCall = captureEventHandler("tool_call");
+    const result = await onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_read",
+      toolName: "Read",
+      args: { path: "/tmp/x" },
+    });
+    expect(result).toBeUndefined();
+  });
+
+  test.each(["bash", "Bash", "write", "edit"] as const)(
+    "%s waits for approve_tool and does not settle on its own",
+    async (toolName) => {
+      await _pairForTest("peer-gate-wait");
+      const onToolCall = captureEventHandler("tool_call");
+      const pending = onToolCall({
+        type: "tool_call",
+        toolCallId: `tc_${toolName}`,
+        toolName,
+        args: toolName.toLowerCase() === "bash" ? { command: "ls" } : { path: "/tmp/x" },
+      }) as Promise<unknown>;
+      expect(await stillPending(pending)).toBe(true);
+      emitApproveTool("peer-gate-wait", `tc_${toolName}`, "deny");
+      await expect(pending).resolves.toMatchObject({ block: true });
+    },
+  );
+
+  test("allow → handler returns undefined so the SDK executes", async () => {
+    await _pairForTest("peer-gate-allow");
+    const onToolStart = captureEventHandler("tool_execution_start");
+    const onToolCall = captureEventHandler("tool_call");
+    const onToolEnd = captureEventHandler("tool_execution_end");
+
+    onToolStart({
+      type: "tool_execution_start",
+      toolCallId: "tc_allow",
+      toolName: "bash",
+      args: { command: "echo ok" },
+    });
+    const pending = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_allow",
+      toolName: "bash",
+      args: { command: "echo ok" },
+    }) as Promise<unknown>;
+
+    const sendsBefore = relayRef.current!.send.mock.calls.length;
+    emitApproveTool("peer-gate-allow", "tc_allow", "allow");
+    await expect(pending).resolves.toBeUndefined();
+
+    onToolEnd({
+      type: "tool_execution_end",
+      toolCallId: "tc_allow",
+      toolName: "bash",
+      result: { content: "ok" },
+      isError: false,
+    });
+
+    const sent = relayRef.current!.send.mock.calls
+      .slice(sendsBefore)
+      .map((c) => c[0] as string)
+      .map(decodeSentCt);
+    const results = sent.filter((d) => d.inner.type === "tool_result");
+    expect(results).toHaveLength(1);
+    expect(results[0]!.inner).toMatchObject({
+      type: "tool_result",
+      tool_call_id: "tc_allow",
+    });
+    expect(results[0]!.inner.error).toBeUndefined();
+    expect(results[0]!.inner.result).toBeDefined();
+  });
+
+  test("deny → does not execute; tool_result error is broadcast", async () => {
+    await _pairForTest("peer-gate-deny");
+    const onToolCall = captureEventHandler("tool_call");
+    const sendsBefore = relayRef.current!.send.mock.calls.length;
+    const pending = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_deny",
+      toolName: "write",
+      args: { path: "/tmp/x", contents: "nope" },
+    }) as Promise<unknown>;
+
+    emitApproveTool("peer-gate-deny", "tc_deny", "deny");
+    await expect(pending).resolves.toEqual({
+      block: true,
+      reason: "Denied by user",
+    });
+
+    const sent = relayRef.current!.send.mock.calls
+      .slice(sendsBefore)
+      .map((c) => c[0] as string)
+      .map(decodeSentCt);
+    const results = sent.filter((d) => d.inner.type === "tool_result");
+    expect(results).toHaveLength(1);
+    expect(results[0]!.inner).toMatchObject({
+      type: "tool_result",
+      tool_call_id: "tc_deny",
+      error: "Denied by user",
+    });
+  });
+
+  test("timeout → deny with timeout code; tool is not executed", async () => {
+    _resetToolApprovalGateForTest(20);
+    await _pairForTest("peer-gate-to");
+    const onToolCall = captureEventHandler("tool_call");
+    const sendsBefore = relayRef.current!.send.mock.calls.length;
+    const result = await onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_to",
+      toolName: "edit",
+      args: { path: "/tmp/x" },
+    });
+    expect(result).toEqual({
+      block: true,
+      reason: "Timed out waiting for tool approval",
+    });
+
+    const sent = relayRef.current!.send.mock.calls
+      .slice(sendsBefore)
+      .map((c) => c[0] as string)
+      .map(decodeSentCt);
+    expect(sent.some((d) => d.inner.type === "tool_result" && d.inner.error === "Timed out waiting for tool approval")).toBe(true);
+    expect(sent.some((d) => d.inner.type === "error" && d.inner.code === "timeout")).toBe(true);
+  });
+
+  test("first approve_tool wins when two phones decide", async () => {
+    await _pairForTest("phone-a");
+    await _pairAdditionalForTest("phone-b", "Phone B");
+    const onToolCall = captureEventHandler("tool_call");
+    const pending = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_dup",
+      toolName: "bash",
+      args: { command: "rm -rf /" },
+    }) as Promise<unknown>;
+
+    emitApproveTool("phone-a", "tc_dup", "deny", "appr-a");
+    emitApproveTool("phone-b", "tc_dup", "allow", "appr-b");
+    await expect(pending).resolves.toEqual({
+      block: true,
+      reason: "Denied by user",
+    });
+  });
+
+  test("daemon / unpaired path still gates bash (no auto-run)", async () => {
+    // Factory is the same handler — even with no paired phone, bash waits.
+    const onToolCall = captureEventHandler("tool_call");
+    const pending = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_unpaired",
+      toolName: "bash",
+      args: { command: "ls" },
+    }) as Promise<unknown>;
+    expect(await stillPending(pending)).toBe(true);
+    _resetToolApprovalGateForTest();
+    await expect(pending).resolves.toMatchObject({ block: true });
   });
 });
 

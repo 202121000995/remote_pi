@@ -152,17 +152,14 @@ pelo relay e/ou empurrados pelo relay. Identificáveis por `type` no topo.
 
 ## Inner envelope — tipos do MVP
 
-> **Approval gate removido (plano 10.2 revisado, 2026-05-19)**: o pi-extension
-> do MVP **não usa** `approve_tool`. Tool calls executam direto, sem prompt.
-> Quando ecossistema Pi padronizar permissions, plano futuro religa o gate
-> sem mudar shape.
->
-> **`tool_request` continua sendo emitido como notificação visual (plano 10.6,
-> 2026-05-19)**: pi-ext envia `tool_request` via evento `tool_execution_start`
-> do SDK assim que cada tool VAI executar — apenas pra app mostrar processo
-> na timeline. Não bloqueia execução, não espera `approve_tool`. App segue
-> recebendo `tool_result` no fim. Forward-compat: o tipo `approve_tool`
-> permanece no contrato mas é silenciosamente ignorado pelo pi-ext.
+> **Approval gate religado (fork Phase 1)**: o shape oficial **não muda**.
+> `tool_request` ainda é emitido em `tool_execution_start` (timeline). Tools
+> read-only (`read`, `glob`, `grep`) executam na hora. `bash` / `write` /
+> `edit` **não executam** até um `approve_tool` matching (`allow` | `deny`).
+> Primeira decisão vence; ausência de `approve_tool` em 60s = deny com
+> `timeout`. App oficial que nunca manda `approve_tool` estoura o timeout
+> em tools gated — intencional neste fork. Sem `scope` / `host_status` /
+> `tool_event`.
 
 Como 1 pareamento = 1 sessão Pi, **não há `session_id`** em mensagem
 nenhuma. Cada conexão peer↔peer já é exclusiva daquela sessão.
@@ -188,7 +185,7 @@ nenhuma. Cada conexão peer↔peer já é exclusiva daquela sessão.
 | `agent_chunk` | `in_reply_to`, `delta` | Push streaming |
 | `agent_done` | `in_reply_to`, `usage?` | Push terminal |
 | `agent_message` | `in_reply_to`, `text`, `usage?` | Usado **apenas** em `session_history`: representa uma resposta consolidada do agente (texto final). Em real-time o pareamento é `agent_chunk`* + `agent_done` |
-| `tool_request` | `tool_call_id`, `tool`, `args` | Push (notificação visual; sem approval pós plano 10.2) |
+| `tool_request` | `tool_call_id`, `tool`, `args` | Push (timeline; bash/write/edit also wait for `approve_tool`) |
 | `tool_result` | `tool_call_id`, `result?`, `error?` | Push após tool executar |
 | `session_history` | `in_reply_to`, `session_started_at` (number, diagnóstico), `events: [{ts, type, ...}]`, `eos` (bool), `truncated` (bool, plano 16) | Resposta a `session_sync` — **mirror das últimas N** (não delta). Eventos têm os mesmos shapes dos types acima (user_input, agent_message, tool_request, tool_result) com `ts` (epoch ms) adicional. Pós-plano 16: server sempre devolve em 1 frame (eos:true), `truncated` indica se Pi tem mais que o limit |
 | `error` | `in_reply_to?`, `code`, `message` | Qualquer falha não-pair |

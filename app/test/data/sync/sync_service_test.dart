@@ -1012,4 +1012,36 @@ void main() {
       },
     );
   });
+
+  group('toolResultStatus', () {
+    test('preserves optimistic deny / expire', () {
+      expect(
+        toolResultStatus(ToolEventStatus.denied, 'Denied by user'),
+        ToolEventStatus.denied,
+      );
+      expect(
+        toolResultStatus(ToolEventStatus.expired, 'Timed out waiting for tool approval'),
+        ToolEventStatus.expired,
+      );
+    });
+
+    test('maps Pi deny / timeout strings when the card is still pending', () {
+      expect(
+        toolResultStatus(ToolEventStatus.pending, 'Denied by user'),
+        ToolEventStatus.denied,
+      );
+      expect(
+        toolResultStatus(ToolEventStatus.pending, 'Timed out waiting for tool approval'),
+        ToolEventStatus.expired,
+      );
+      expect(
+        toolResultStatus(ToolEventStatus.pending, 'command failed: exit 1'),
+        ToolEventStatus.failed,
+      );
+      expect(
+        toolResultStatus(ToolEventStatus.pending, null),
+        ToolEventStatus.completed,
+      );
+    });
+  });
 }

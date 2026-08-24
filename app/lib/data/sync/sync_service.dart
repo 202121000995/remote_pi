@@ -585,9 +585,7 @@ class SyncService extends Service {
                   ))
               .copyWith(
                 tool: base.copyWith(
-                  status: error != null
-                      ? ToolEventStatus.failed
-                      : ToolEventStatus.completed,
+                  status: toolResultStatus(base.status, error),
                   result: result,
                   error: error,
                 ),
@@ -805,9 +803,10 @@ class SyncService extends Service {
           final idx = out.lastIndexWhere(
             (m) => m.role == MsgRole.tool && m.tool?.toolCallId == toolCallId,
           );
-          final status = error != null
-              ? ToolEventStatus.failed
-              : ToolEventStatus.completed;
+          final status = toolResultStatus(
+            idx >= 0 ? out[idx].tool?.status : null,
+            error,
+          );
           if (idx >= 0) {
             out[idx] = out[idx].copyWith(
               tool: out[idx].tool!.copyWith(
@@ -1181,4 +1180,23 @@ class SyncService extends Service {
     _workingController.close();
     _queuedController.close();
   }
+}
+
+/// Map a live or replayed `tool_result` onto the card status.
+///
+/// Optimistic Allow/Deny from [SyncService.approveTool] is preserved so a
+/// later error payload does not flip DENIED back to FAILED. Timeout / user
+/// deny strings from the Pi land on `expired` / `denied` so the existing
+/// grey card states stay meaningful.
+ToolEventStatus toolResultStatus(ToolEventStatus? current, String? error) {
+  if (current == ToolEventStatus.denied || current == ToolEventStatus.expired) {
+    return current!;
+  }
+  if (error == null) return ToolEventStatus.completed;
+  final lower = error.toLowerCase();
+  if (lower.contains('timeout') || lower.contains('timed out')) {
+    return ToolEventStatus.expired;
+  }
+  if (lower.contains('denied')) return ToolEventStatus.denied;
+  return ToolEventStatus.failed;
 }

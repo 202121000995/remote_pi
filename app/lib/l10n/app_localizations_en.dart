@@ -541,6 +541,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolAllow => 'Allow';
 
   @override
+  String get toolAllowOnce => 'Allow once';
+
+  @override
+  String get toolAllowSession => 'Allow this session';
+
+  @override
+  String get toolAllowAlways => 'Always allow';
+
+  @override
   String get toolDeny => 'Deny';
 
   @override

@@ -2713,6 +2713,7 @@ function emitApproveTool(
   toolCallId: string,
   decision: "allow" | "deny",
   id = `appr-${toolCallId}-${decision}`,
+  extra: { scope?: "once" | "session" | "always"; pattern?: string } = {},
 ): void {
   relayRef.current!.emit("message", JSON.stringify({
     peer,
@@ -2721,6 +2722,7 @@ function emitApproveTool(
       id,
       tool_call_id: toolCallId,
       decision,
+      ...extra,
     })).toString("base64"),
   }));
 }
@@ -2919,6 +2921,84 @@ describe("tool approval gate", () => {
     expect(await stillPending(pending)).toBe(true);
     _resetToolApprovalGateForTest();
     await expect(pending).resolves.toMatchObject({ block: true });
+  });
+
+  test("old client without scope still behaves as once", async () => {
+    await _pairForTest("peer-gate-once");
+    const onToolCall = captureEventHandler("tool_call");
+    const first = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_old_a",
+      toolName: "bash",
+      args: { command: "echo hi" },
+    }) as Promise<unknown>;
+    emitApproveTool("peer-gate-once", "tc_old_a", "allow");
+    await expect(first).resolves.toBeUndefined();
+
+    const second = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_old_b",
+      toolName: "bash",
+      args: { command: "echo hi" },
+    }) as Promise<unknown>;
+    expect(await stillPending(second)).toBe(true);
+    emitApproveTool("peer-gate-once", "tc_old_b", "deny");
+    await expect(second).resolves.toMatchObject({ block: true });
+  });
+
+  test("session scope remembers the pattern for later tool_calls", async () => {
+    await _pairForTest("peer-gate-sess");
+    const onToolCall = captureEventHandler("tool_call");
+    const first = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_sess_a",
+      toolName: "bash",
+      args: { command: "echo hi" },
+    }) as Promise<unknown>;
+    emitApproveTool("peer-gate-sess", "tc_sess_a", "allow", "appr-sess", { scope: "session" });
+    await expect(first).resolves.toBeUndefined();
+
+    await expect(onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_sess_b",
+      toolName: "Bash",
+      args: { command: "echo hi there" },
+    })).resolves.toBeUndefined();
+  });
+
+  test("always scope persists and reloads from approvals.json", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "rp-ext-always-"));
+    const path = join(dir, "approvals.json");
+    _resetToolApprovalGateForTest(undefined, path);
+    await _pairForTest("peer-gate-always");
+    const onToolCall = captureEventHandler("tool_call");
+
+    const first = onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_alw_a",
+      toolName: "write",
+      args: { path: "src/a.ts" },
+    }) as Promise<unknown>;
+    emitApproveTool("peer-gate-always", "tc_alw_a", "allow", "appr-alw", {
+      scope: "always",
+      pattern: "src/**",
+    });
+    await expect(first).resolves.toBeUndefined();
+
+    const saved = JSON.parse(readFileSync(path, "utf8")) as {
+      rules: Array<{ tool: string; pattern: string; decision: string }>;
+    };
+    expect(saved.rules).toEqual([
+      { tool: "write", pattern: "src/**", decision: "allow" },
+    ]);
+
+    _resetToolApprovalGateForTest(undefined, path);
+    await expect(onToolCall({
+      type: "tool_call",
+      toolCallId: "tc_alw_b",
+      toolName: "write",
+      args: { path: "src/nested/b.ts" },
+    })).resolves.toBeUndefined();
   });
 });
 

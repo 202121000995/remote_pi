@@ -169,6 +169,9 @@
   "toolOutcomeDenied": "✗ {error}",
   "toolOutcomeExpired": "✗ Expired",
   "toolAllow": "Allow",
+  "toolAllowOnce": "Allow once",
+  "toolAllowSession": "Allow this session",
+  "toolAllowAlways": "Always allow",
   "toolDeny": "Deny",
 
   "settingsTitle": "Settings",

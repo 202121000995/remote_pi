@@ -524,6 +524,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toolAllow => '允许';
 
   @override
+  String get toolAllowOnce => '允许一次';
+
+  @override
+  String get toolAllowSession => '本次允许';
+
+  @override
+  String get toolAllowAlways => '总是允许';
+
+  @override
   String get toolDeny => '拒绝';
 
   @override

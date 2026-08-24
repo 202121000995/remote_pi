@@ -114,4 +114,24 @@ describe("encodeClient roundtrip", () => {
     };
     expect(JSON.parse(encodeClient(msg).trim())).toEqual(msg);
   });
+
+  test("approve_tool optional scope and pattern encode", () => {
+    const once = {
+      type: "approve_tool" as const,
+      id: "a1",
+      tool_call_id: "tc_1",
+      decision: "allow" as const,
+    };
+    expect(JSON.parse(encodeClient(once).trim())).toEqual(once);
+
+    const always = {
+      type: "approve_tool" as const,
+      id: "a2",
+      tool_call_id: "tc_1",
+      decision: "allow" as const,
+      scope: "always" as const,
+      pattern: "echo *",
+    };
+    expect(JSON.parse(encodeClient(always).trim())).toEqual(always);
+  });
 });

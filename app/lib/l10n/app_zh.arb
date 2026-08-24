@@ -225,6 +225,9 @@
   },
   "toolOutcomeExpired": "✗ 已超时",
   "toolAllow": "允许",
+  "toolAllowOnce": "允许一次",
+  "toolAllowSession": "本次允许",
+  "toolAllowAlways": "总是允许",
   "toolDeny": "拒绝",
 
   "settingsTitle": "设置",

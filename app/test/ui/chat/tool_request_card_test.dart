@@ -70,40 +70,58 @@ void main() {
     ) async {
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: _bashTool)));
       expect(find.text(appL10n.toolRunning), findsOneWidget);
-      expect(find.text(appL10n.toolAllow), findsNothing);
+      expect(find.text(appL10n.toolAllowOnce), findsNothing);
+      expect(find.text(appL10n.toolAllowSession), findsNothing);
+      expect(find.text(appL10n.toolAllowAlways), findsNothing);
       expect(find.text(appL10n.toolDeny), findsNothing);
       expect(find.textContaining('60s'), findsNothing);
     });
 
     testWidgets(
-      'pending bash with onDecide shows Allow/Deny and sends decisions',
+      'pending bash with onDecide shows scoped Allow/Deny actions',
       (tester) async {
         String? decidedId;
         ApproveDecision? decided;
+        ApproveScope? scope;
         await tester.pumpWidget(
           _wrap(
             ToolRequestCard(
               tool: _bashTool,
-              onDecide: (id, decision) {
+              onDecide: (id, decision, nextScope) {
                 decidedId = id;
                 decided = decision;
+                scope = nextScope;
               },
             ),
           ),
         );
         expect(find.text(appL10n.toolAwaiting), findsOneWidget);
         expect(find.text(appL10n.toolWaitingApproval), findsOneWidget);
-        expect(find.text(appL10n.toolAllow), findsOneWidget);
+        expect(find.text(appL10n.toolAllowOnce), findsOneWidget);
+        expect(find.text(appL10n.toolAllowSession), findsOneWidget);
+        expect(find.text(appL10n.toolAllowAlways), findsOneWidget);
         expect(find.text(appL10n.toolDeny), findsOneWidget);
 
-        await tester.tap(find.text(appL10n.toolAllow));
+        await tester.tap(find.text(appL10n.toolAllowOnce));
         await tester.pump();
         expect(decidedId, 'tc1');
         expect(decided, ApproveDecision.allow);
+        expect(scope, ApproveScope.once);
+
+        await tester.tap(find.text(appL10n.toolAllowSession));
+        await tester.pump();
+        expect(decided, ApproveDecision.allow);
+        expect(scope, ApproveScope.session);
+
+        await tester.tap(find.text(appL10n.toolAllowAlways));
+        await tester.pump();
+        expect(decided, ApproveDecision.allow);
+        expect(scope, ApproveScope.always);
 
         await tester.tap(find.text(appL10n.toolDeny));
         await tester.pump();
         expect(decided, ApproveDecision.deny);
+        expect(scope, ApproveScope.once);
       },
     );
 
@@ -118,10 +136,10 @@ void main() {
       );
       var called = false;
       await tester.pumpWidget(
-        _wrap(ToolRequestCard(tool: read, onDecide: (_, _) => called = true)),
+        _wrap(ToolRequestCard(tool: read, onDecide: (_, _, _) => called = true)),
       );
       expect(find.text(appL10n.toolRunning), findsOneWidget);
-      expect(find.text(appL10n.toolAllow), findsNothing);
+      expect(find.text(appL10n.toolAllowOnce), findsNothing);
       expect(find.text(appL10n.toolDeny), findsNothing);
       expect(called, isFalse);
     });
@@ -164,7 +182,7 @@ void main() {
       );
       await tester.pumpWidget(_wrap(const ToolRequestCard(tool: allowed)));
       expect(find.text(appL10n.toolRunning), findsOneWidget);
-      expect(find.text(appL10n.toolAllow), findsNothing);
+      expect(find.text(appL10n.toolAllowOnce), findsNothing);
     });
 
     // Plan/32 — the card is colored by status: running blue, done green,

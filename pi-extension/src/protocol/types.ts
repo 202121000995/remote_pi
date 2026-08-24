@@ -185,7 +185,16 @@ export type ClientMessage =
     }
   | { type: "queued_message_set"; id: string; text: string }
   | { type: "queued_message_clear"; id: string; target_id?: string }
-  | { type: "approve_tool"; id: string; tool_call_id: string; decision: "allow" | "deny" }
+  | {
+      type: "approve_tool";
+      id: string;
+      tool_call_id: string;
+      decision: "allow" | "deny";
+      /** Omitted / unknown → `once` (this tool_call_id only). */
+      scope?: "once" | "session" | "always";
+      /** Optional glob/prefix for session+always rules. Derived from args if omitted. */
+      pattern?: string;
+    }
   | { type: "cancel"; id: string; target_id: string }
   | { type: "ping"; id: string }
   | { type: "session_sync"; id: string; limit?: number }

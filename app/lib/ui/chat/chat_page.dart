@@ -407,7 +407,8 @@ class ChatPage extends StatelessWidget {
         return _MessageList(
           messages: visible,
           streaming: streaming,
-          onDecide: (id, decision) => vm.approveTool(id, decision),
+          onDecide: (id, decision, scope) =>
+              vm.approveTool(id, decision, scope: scope),
         );
       }(),
     };
@@ -567,7 +568,7 @@ class ChatPage extends StatelessWidget {
 class _MessageList extends StatelessWidget {
   final List<ChatMessage> messages;
   final StreamingMessage? streaming;
-  final void Function(String, ApproveDecision) onDecide;
+  final void Function(String, ApproveDecision, ApproveScope) onDecide;
 
   const _MessageList({
     required this.messages,

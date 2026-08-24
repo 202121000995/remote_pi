@@ -117,7 +117,7 @@ void main() {
         _wrap(
           ToolRequestCard(
             tool: read,
-            onDecide: (_, __) => called = true,
+            onDecide: (_, _) => called = true,
           ),
         ),
       );
